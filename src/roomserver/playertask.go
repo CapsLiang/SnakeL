@@ -21,7 +21,7 @@ type PlayerTask struct {
 	wstask *gonet.WebSocketTask //用户的websocket链接
 	id     uint32               //在Start()中初始化
 	//todo 创建房间与场景
-	//room       *Room                //所属房间
+	room *Room //所属房间
 	//scene      *Scene               //玩家场景
 	activetime time.Time //活跃时间
 	angle      uint32    //角度 todo 在parsemsg中获得
@@ -50,11 +50,11 @@ func (PT *PlayerTask) Start() {
 	//todo 分配房间
 
 	//this.scene.self.Id = this.id
-	room, err := RoomMgr_GetMe().GetRoom(PT)
-	if nil != err {
-		glog.Error("[roomserver] Allocate room fail ", err)
-		return
-	}
+	//room, err := RoomMgr_GetMe().GetRoom(PT)
+	//if nil != err {
+	//	glog.Error("[roomserver] Allocate room fail ", err)
+	//	return
+	//}
 	//PT.scene.room = room
 
 }
