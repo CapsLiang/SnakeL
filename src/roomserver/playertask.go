@@ -50,12 +50,12 @@ func (PT *PlayerTask) Start() {
 	//todo 分配房间
 
 	//this.scene.self.Id = this.id
-	//room, err := RoomMgr_GetMe().GetRoom(this)
-	//if nil != err {
-	//	glog.Error("[roomserver] Allocate room fail ", err)
-	//	return
-	//}
-	//this.scene.room = room
+	room, err := RoomMgr_GetMe().GetRoom(PT)
+	if nil != err {
+		glog.Error("[roomserver] Allocate room fail ", err)
+		return
+	}
+	//PT.scene.room = room
 
 }
 
