@@ -1,4 +1,4 @@
-package roomserver
+package main
 
 import (
 	"base/env"
@@ -34,7 +34,8 @@ func RoomServer_GetMe() *RoomServer {
 }
 
 func (r RoomServer) OnWSAccept(conn *websocket.Conn) {
-	//Todo: NewPlayerTask(conn).Start()
+	//创建玩家连接 分配房间
+	NewPlayerTask(conn).Start()
 	glog.Info("[WS] Connected websocket已连接")
 }
 
