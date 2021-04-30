@@ -36,6 +36,12 @@ const (
 	SceneGridSize  float64 = 20
 )
 
+//食物信息
+const (
+	FoodPoolNum uint32  = 20
+	FoodRadius  float64 = 5
+)
+
 type POINT struct {
 	X float64
 	Y float64
@@ -45,6 +51,17 @@ type Circle struct {
 	center POINT
 	radius float64
 }
+
+type MsgType uint16
+
+const (
+	//MsgType_Token  MsgType = 0
+	//MsgType_Move   MsgType = 1
+	//MsgType_Finsh  MsgType = 2
+	//MsgType_Shoot  MsgType = 3
+	//MsgType_Heart  MsgType = 4
+	MsgType_Direct MsgType = 0
+)
 
 //建议用二进制传angle
 //type UserCmd struct {
