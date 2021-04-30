@@ -116,7 +116,9 @@ func (this *Room) checkPlayer(player *PlayerTask) bool {
 }
 
 func (this *Room) sendRoomMsg() {
-
+	for _, p := range this.players {
+		p.SendSceneMsg()
+	}
 }
 
 func (this *Room) sendTime(t uint64) {

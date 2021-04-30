@@ -20,6 +20,10 @@ type RetOverMsg struct {
 	End bool `json:"end"`
 }
 
+//服务器返回游戏场景
+type RetSceneMsg struct {
+}
+
 //websocketTask 超时时间
 const (
 	Task_TimeOut = 20

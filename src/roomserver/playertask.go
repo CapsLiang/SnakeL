@@ -21,8 +21,8 @@ type PlayerTask struct {
 	wstask *gonet.WebSocketTask //用户的websocket链接
 	id     uint32               //在Start()中初始化
 	//todo 创建房间与场景
-	room *Room //所属房间
-	//scene      *Scene               //玩家场景
+	room       *Room     //所属房间
+	scene      *Scene    //玩家场景
 	activetime time.Time //活跃时间
 	angle      uint32    //角度 todo 在parsemsg中获得
 
@@ -60,8 +60,18 @@ func (PT *PlayerTask) Start() {
 }
 
 //todo ParseMsg
-func (PT *PlayerTask) ParseMsg(data []byte, flag byte) bool {
-	panic("implement me")
+func (this *PlayerTask) ParseMsg(data []byte, flag byte) bool {
+	glog.Info("[WS] Parse Msg", data)
+	this.activetime = time.Now()
+
+	//todo msg需要约定
+	msgtype := common.MsgType(uint16(data[2]))
+
+	switch msgtype {
+
+	}
+
+	return true
 }
 
 //todo OnClose()
@@ -70,15 +80,28 @@ func (PT *PlayerTask) OnClose() {
 	PT.wstask.Close()
 	PlayerTaskMgr_GetMe().Del(PT)
 
-	//PT.room = nil
-	//PT.scene = nil
+	PT.room = nil
+	PT.scene = nil
+}
+
+func (this *PlayerTask) SendSceneMsg() bool {
+	if nil == this.scene {
+		return false
+	}
+
+	msg := this.scene.SceneMsg()
+	if nil == msg {
+		glog.Error("[Scene] Msg nil")
+		return false
+	}
+	//todo 传输现在为json
+	return this.wstask.AsyncSend(msg, 0)
 }
 
 /*************************
 通过PlayTaskMgr 管理PlayerTask
 *************************/
 /*
-Todo: nil
 //开一个协程管理PlayerTask
 func PlayerTaskMgr_GetMe() *PlayerTaskMgr
 //超时断开连接
