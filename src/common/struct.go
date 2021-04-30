@@ -42,7 +42,8 @@ const (
 
 //食物信息
 const (
-	FoodPoolNum uint32  = 20
+	FoodPoolNum uint32  = 2000
+	FoodNum     uint32  = 20
 	FoodRadius  float64 = 5
 )
 
