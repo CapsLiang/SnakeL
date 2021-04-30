@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 )
@@ -78,4 +79,42 @@ type Snake struct {
 func RandColor() uint32 {
 	//todo: 随机生成颜色
 	return 1 + uint32(rand.Intn(255))
+}
+
+//产生[min max]间的随机数
+func RandBetween(min, max int64) int64 {
+	if min == max {
+		return min
+	}
+	if min > max {
+		min, max = max, min
+	}
+	n := max - min + 1
+	if n <= 0 {
+		fmt.Println("随机失败")
+		return 0
+	}
+	return min + rand.Int63n(n)
+}
+
+//产生[min max]间的随机数
+func RandBetweenUint32(min, max uint32) uint32 {
+	if min == max {
+		return min
+	}
+	if min > max {
+		min, max = max, min
+	}
+	n := max - min + 1
+	if n <= 0 {
+		fmt.Println("随机失败")
+		return 0
+	}
+	return min + uint32(rand.Int63n(int64(max-min+1)))
+}
+
+//随机坐标float64
+func RandPOINTFloat64() (X, Y float64) {
+	//随机生成[0..1)的float 不会撞墙
+	return rand.Float64() * SceneWidth, rand.Float64() * SceneWidth
 }
