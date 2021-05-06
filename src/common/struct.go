@@ -20,8 +20,20 @@ type RetOverMsg struct {
 	End bool `json:"end"`
 }
 
+//omitempty作用是在json数据结构转换时，当该字段的值为该字段类型的零值时，忽略该字段
+type RetSnakeBody struct {
+	//color
+	Id   uint32  `json:"id,omitempty"`
+	Name string  `json:"name,omitempty"`
+	Head POINT   `json:"head"`
+	Body []POINT `json:"body,omitempty"`
+}
+
 //服务器返回游戏场景
 type RetSceneMsg struct {
+	PlayerSnake []RetSnakeBody `json:"player_snake"`
+	OthersSnake []RetSnakeBody `json:"others_snake"`
+	FoodList    []Food         `json:"food_list"`
 }
 
 //websocketTask 超时时间
@@ -44,6 +56,7 @@ const (
 const (
 	FoodPoolNum uint32  = 2000
 	FoodNum     uint32  = 20
+	FoodEnergy  int32   = 5
 	FoodRadius  float64 = 5
 )
 
@@ -51,6 +64,11 @@ type POINT struct {
 	//Id uint32
 	X float64
 	Y float64
+}
+
+type Food struct {
+	Energy int32
+	Stat   POINT
 }
 
 type Circle struct {
