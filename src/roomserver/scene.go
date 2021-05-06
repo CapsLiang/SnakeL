@@ -4,27 +4,31 @@ import (
 	"common"
 	"encoding/json"
 	"github.com/golang/glog"
+	"time"
 )
+
+type SnakeBody struct {
+	Id   uint32
+	Name string
+	Head common.POINT
+	Body []common.POINT
+}
 
 type Scene struct {
 	room *Room
 
-	sceneWidth     float64
-	sceneHeight    float64
-	sceneGridSize  float64
-	sceneGridColor string
-
-	head       common.POINT   //蛇头的位置
-	body       []common.POINT //蛇身
-	headnext   common.POINT   //蛇头下次移动的位置
-	invincible bool           //无敌
+	head common.POINT   //蛇头的位置
+	body []common.POINT //蛇身
+	//headnext   common.POINT   //蛇头下次移动的位置
+	invincible bool //无敌
 	//pool *BallPool //后续做不同类型的食物
 
 	foodlist []common.POINT //食物列表
 	eatfood  map[int]bool   //判断是否被吃 每次更新
 
-	otherhead []common.POINT //其他人的头
-	otherbody []common.POINT //其他人的身体 做判断
+	others []SnakeBody //其他人的信息
+
+	preTime int64 //上一帧时间
 }
 
 func (this *Scene) FoodList_GetMe() []common.POINT {
@@ -85,7 +89,16 @@ func (this *Scene) InitSnake() {
 
 }
 
-func (this *Scene) SnakeMove(angle, space uint32) {
+func (this *Scene) UpdateSnakePOINT(angle uint32) {
+
+	//space := common.SceneSpeed * float64(time.Now() )
+	space := common.SceneSpeed * float64(((time.Now().UnixNano()/1e6)-(this.preTime))/1000) //相差毫秒 / 1000 每秒
+	this.preTime = (time.Now().UnixNano() / 1e6)                                            //毫秒
+
+	this.SnakeMove(angle, space)
+}
+
+func (this *Scene) SnakeMove(angle uint32, space float64) {
 	//todo 算出蛇头移动后的坐标
 	newhead := common.POINT{
 		X: 0,
