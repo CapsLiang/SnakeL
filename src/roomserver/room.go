@@ -2,7 +2,10 @@ package main
 
 import (
 	"base/env"
+	"common"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/golang/glog"
 	"strconv"
 	"time"
@@ -54,14 +57,11 @@ func (this *Room) GameLoop() {
 		select {
 		case <-timeTicker.C:
 			if this.timeloop%2 == 0 { //0.02s 20ms
-				//todo room update()
 				this.update()
-				//todo room sendRoomMsg()
 				this.sendRoomMsg()
 			}
 
 			if this.timeloop%100 == 0 { //1s
-				//todo sendTime()
 				this.sendTime(this.totgametime - this.timeloop/100)
 			}
 			if this.timeloop != 0 && this.timeloop%(this.totgametime*100) == 0 {
@@ -121,8 +121,20 @@ func (this *Room) sendRoomMsg() {
 	}
 }
 
+//还有多久游戏结束
 func (this *Room) sendTime(t uint64) {
-
+	for _, p := range this.players {
+		t := common.RetTimeMsg{
+			Time: t,
+		}
+		jstr, err := json.Marshal(t)
+		if err != nil {
+			glog.Error("[Time] marshal jsonMsg err")
+			return
+		}
+		fmt.Println(string(jstr))
+		p.wstask.AsyncSend(jstr, 0)
+	}
 }
 
 func (this *Room) update() {

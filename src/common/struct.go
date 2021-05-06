@@ -20,6 +20,10 @@ type RetOverMsg struct {
 	End bool `json:"end"`
 }
 
+type RetTimeMsg struct {
+	Time uint64 `json:"time"`
+}
+
 //omitempty作用是在json数据结构转换时，当该字段的值为该字段类型的零值时，忽略该字段
 type RetSnakeBody struct {
 	//color

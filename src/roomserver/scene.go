@@ -76,11 +76,25 @@ func (this *Scene) GetFoodList() *FoodList {
 	return mFoods
 }
 
-func (this *Scene) EatFood() {
+func (this *Scene) EatFood(head common.POINT) {
 	//todo this.snake.Head
+	if this.EatJuge(head) {
+		this.Grow(this.snake)
+	}
+}
+
+func (this *Scene) EatJuge(head common.POINT) bool {
+
+	glog.Info("Eat Food")
+	return false
+}
+
+func (this *Scene) Grow(snak SnakeBody) {
+
 }
 
 func (this *Scene) InitSnake() {
+
 	headx, heady := common.RandPOINTFloat64()
 	temhead := common.POINT{
 		X: headx - 50,
@@ -110,7 +124,7 @@ func (this *Scene) UpdateSnakePOINT(angle uint32) {
 	this.SnakeMove(angle, space)
 }
 
-//todo 传的是引用吗?
+//todo 传的是引用可以吗?
 func (this *Scene) UpdateOthersSnake() {
 
 	for _, p := range this.room.players {
@@ -148,11 +162,13 @@ func (this *Scene) SnakeMove(angle uint32, space float64) {
 
 func (this *Scene) SnakeBodyMove(newhead common.POINT) {
 	//todo 计算出单位时间内移动的距离算出
+	//判断是否吃食物
+	this.EatFood(this.snake.head)
 }
 
 func (this *Scene) SceneMsg() []byte {
 
-	//todo 序列化场景信息
+	//序列化场景信息 本条蛇 其他玩家 食物数组
 	var retsceneMsg common.RetSceneMsg
 	//先分配空间
 	retsceneMsg.PlayerSnake = []common.RetSnakeBody{}

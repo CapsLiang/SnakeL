@@ -56,6 +56,7 @@ func (this *PlayerTask) Start() {
 	}
 	this.scene.room = room
 	this.scene.snake.thisplayer = this
+	this.scene.InitSnake() //初始化蛇
 }
 
 //todo ParseMsg
@@ -73,9 +74,7 @@ func (this *PlayerTask) ParseMsg(data []byte, flag byte) bool {
 	return true
 }
 
-//todo OnClose()
 func (this *PlayerTask) OnClose() {
-
 	this.wstask.Close()
 	PlayerTaskMgr_GetMe().Del(this)
 

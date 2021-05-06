@@ -82,7 +82,7 @@ func (this *RoomMgr) GetRoom(player *PlayerTask) (*Room, error) {
 	return room, nil
 }
 
-//todo 生成房间号
+//生成房间号 感觉有点问题
 func (this *RoomMgr) getNextRoomid() uint32 {
 	this.rcount = (this.rcount + 1) % 10000
 	return this.rcount
