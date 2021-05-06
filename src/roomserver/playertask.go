@@ -24,7 +24,7 @@ type PlayerTask struct {
 	room       *Room     //所属房间
 	scene      *Scene    //玩家场景
 	activetime time.Time //活跃时间
-	angle      uint32    //角度 todo 在parsemsg中获得
+	angle      uint32    //角度 todo 在parsemsg中传给Scence
 
 }
 
@@ -41,21 +41,22 @@ func NewPlayerTask(conn *websocket.Conn) *PlayerTask {
 	return temPTask
 }
 
-func (PT *PlayerTask) Start() {
-	PT.id = rand.New(rand.NewSource(time.Now().UnixNano())).Uint32() % 100 // 待优化
-	PT.wstask.Start()                                                      //开两个goroutine收发消息
-	PT.wstask.Verify()                                                     // 使用验证通常是为了防止用户连接而不使用，占据服务器资源 验证客户端是否合法后可以减少这种情况
+func (this *PlayerTask) Start() {
+	this.id = rand.New(rand.NewSource(time.Now().UnixNano())).Uint32() % 100 // 待优化
+	this.wstask.Start()                                                      //开两个goroutine收发消息
+	this.wstask.Verify()                                                     // 使用验证通常是为了防止用户连接而不使用，占据服务器资源 验证客户端是否合法后可以减少这种情况
 
-	PlayerTaskMgr_GetMe().Add(PT) //添加到PTmgr管理
-	//todo 分配房间
+	PlayerTaskMgr_GetMe().Add(this) //添加到PTmgr管理
 
-	//this.scene.self.Id = this.id
-	//room, err := RoomMgr_GetMe().GetRoom(PT)
-	//if nil != err {
-	//	glog.Error("[roomserver] Allocate room fail ", err)
-	//	return
-	//}
-	//PT.scene.room = room
+	//Todo 分配房间
+	//this.scene.head.Id = this.id
+
+	room, err := RoomMgr_GetMe().GetRoom(this)
+	if nil != err {
+		glog.Error("[roomserver] Allocate room fail ", err)
+		return
+	}
+	this.scene.room = room
 
 }
 
