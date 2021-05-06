@@ -65,16 +65,16 @@ func MinCircle(pArr []POINT) Circle {
 	return temO
 }
 
-type Snake struct {
-	Name   string  //蛇名字
-	Head   POINT   //蛇头
-	Body   []POINT //蛇身数组
-	Alive  bool    //是否存活
-	Radius float64 //蛇的半径
-
-	Color     string //蛇身颜色
-	HeadColor string //蛇头颜色
-}
+//type Snake struct {
+//	Name   string  //蛇名字
+//	Head   POINT   //蛇头
+//	Body   []POINT //蛇身数组
+//	Alive  bool    //是否存活
+//	Radius float64 //蛇的半径
+//
+//	Color     string //蛇身颜色
+//	HeadColor string //蛇头颜色
+//}
 
 func RandColor() uint32 {
 	//todo: 随机生成颜色
@@ -117,4 +117,9 @@ func RandBetweenUint32(min, max uint32) uint32 {
 func RandPOINTFloat64() (X, Y float64) {
 	//随机生成[0..1)的float 不会撞墙
 	return rand.Float64() * SceneWidth, rand.Float64() * SceneWidth
+}
+
+//四舍五入 需要转换的话要转成int
+func round(x float64) float64 {
+	return math.Floor(x + 0.5)
 }
