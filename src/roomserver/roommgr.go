@@ -73,7 +73,7 @@ func (this *RoomMgr) GetRoom(player *PlayerTask) (*Room, error) {
 	fmt.Println("为玩家", player, "分配房间", room)
 	if room.IsFull() {
 		fmt.Println("gamestart")
-		this.runRoom[room.id] = room
+		this.runRoom[room.roomid] = room
 		this.unFullRoom.Pop()
 		r, err := this.unFullRoom.Front().(*Room)
 		fmt.Println("after pop:", r, err)
