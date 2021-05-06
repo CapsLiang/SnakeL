@@ -12,3 +12,5 @@ message Scene
 {
   repeated POINT body = 1;
 }
+
+option go_package = "./";

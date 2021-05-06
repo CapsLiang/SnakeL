@@ -36,3 +36,5 @@ message RoomRequest {
 service StreamRoomService {
   rpc Route(stream RoomRequest) returns (stream RoomResponse) {};
 }
+
+option go_package = "./";
