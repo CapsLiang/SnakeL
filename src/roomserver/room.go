@@ -15,7 +15,7 @@ const (
 //提供信息给roommgr管理房间
 type Room struct {
 	//mutex    sync.RWMutex
-	id          uint32                 //房间id newroom中初始化
+	roomid      uint32                 //房间id newroom中初始化
 	roomtype    uint32                 //房间类型
 	players     map[uint32]*PlayerTask //房间内的玩家
 	curnum      uint32                 //当前房间内玩家数
@@ -29,7 +29,7 @@ type Room struct {
 
 func NewRoom(rtype, rid uint32) *Room {
 	room := &Room{
-		id:       rid,
+		roomid:   rid,
 		roomtype: rtype,
 		players:  make(map[uint32]*PlayerTask),
 		curnum:   0,
@@ -81,7 +81,7 @@ func (this *Room) GameLoop() {
 func (this *Room) AddPlayer(player *PlayerTask) error {
 
 	if this.checkPlayer(player) {
-		glog.Info("[Room] ", player.id, "玩家已经在[", this.id, "]房间里面了")
+		glog.Info("[Room] ", player.id, "玩家已经在[", this.roomid, "]房间里面了")
 		return nil
 	}
 	if this.curnum >= MaxPlayerNum {
