@@ -4,13 +4,58 @@ package proto;
 
 message POINT
 {
-  float X = 1;
-  float Y = 2;
+  float x = 1;
+  float y = 2;
 }
 
-message Scene
+message FoodPOINT
 {
-  repeated POINT body = 1;
+  float x = 1;
+  float y = 2;
+  float energy = 3;
 }
+
+message SnakeBody
+{
+  uint32 id = 1; //蛇的id
+  string name = 2; //玩家名
+  POINT head = 3; //蛇头
+  repeated POINT body = 4; // 蛇身
+}
+
+
+message SceneMsg
+{
+
+  SnakeBody player = 1; //本玩家
+  SnakeBody others = 2; //其他玩家 todo 如果有更多的人来
+}
+
+//发送场景信息 长宽高
+message SceneBackground
+{
+  float SceneSpeed = 1;
+  float SceneWidth = 2;
+  float SceneHeight = 3;
+  string SceneColor = 4;
+  float SceneGridColor = 5;
+  float SceneGridSize = 6;
+}
+
+//客户端请求场景信息 玩家进入游戏时请求 其他时刻由服务器定时发送
+message SceneRequest {
+
+}
+
+//服务器返回场景信息
+message SceneResponse {
+  SceneMsg scenemsg = 1;
+}
+
+//rpc服务 send场景
+service SendSceneService {
+  rpc Route(SceneRequest) returns(SceneResponse) {};
+}
+
 
 option go_package = "./";

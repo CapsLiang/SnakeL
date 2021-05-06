@@ -31,7 +31,7 @@ const (
 
 //场景信息 速度 宽度 高度
 const (
-	SceneSpeed float64 = 0.5
+	SceneSpeed float64 = 200 //像素每秒
 	//场景的高度与大小
 	SceneWidth  float64 = 800
 	SceneHeight float64 = 800
