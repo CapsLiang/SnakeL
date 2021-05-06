@@ -18,14 +18,12 @@ PlayerTask 并通过PlayTaskMgr 管理PlayerTask
 *************************/
 
 type PlayerTask struct {
-	wstask *gonet.WebSocketTask //用户的websocket链接
-	id     uint32               //在Start()中初始化
-	//todo 创建房间与场景
-	room       *Room     //所属房间
-	scene      *Scene    //玩家场景
-	activetime time.Time //活跃时间
-	angle      uint32    //角度 todo 在parsemsg中传给Scence
-
+	wstask     *gonet.WebSocketTask //用户的websocket链接
+	id         uint32               //在Start()中初始化
+	room       *Room                //所属房间
+	scene      *Scene               //玩家场景
+	activetime time.Time            //活跃时间
+	angle      uint32               //角度 todo 在parsemsg中被赋值
 }
 
 func NewPlayerTask(conn *websocket.Conn) *PlayerTask {
@@ -83,6 +81,22 @@ func (PT *PlayerTask) OnClose() {
 
 	PT.room = nil
 	PT.scene = nil
+}
+
+func (this *PlayerTask) Update() {
+	if nil == this.scene {
+		return
+	}
+
+	this.scene.UpdateSnakePOINT(this.angle)
+}
+
+func (this *PlayerTask) UpdateOthers() {
+	if nil == this.scene {
+		return
+	}
+
+	this.scene.UpdatePos()
 }
 
 func (this *PlayerTask) SendSceneMsg() bool {
