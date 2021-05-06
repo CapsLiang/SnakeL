@@ -47,13 +47,13 @@ func (this *Room) Start() {
 }
 
 func (this *Room) GameLoop() {
-	timeTicker := time.NewTicker(time.Millisecond * 10)
+	timeTicker := time.NewTicker(time.Millisecond * 10) //10ms 发一次消息
 	stop := false
 	for !stop {
 		// SceneMsg, 用于同步场景
 		select {
 		case <-timeTicker.C:
-			if this.timeloop%2 == 0 { //0.02s
+			if this.timeloop%2 == 0 { //0.02s 20ms
 				//todo room update()
 				this.update()
 				//todo room sendRoomMsg()
@@ -126,5 +126,12 @@ func (this *Room) sendTime(t uint64) {
 }
 
 func (this *Room) update() {
+	for _, p := range this.players {
+		p.Update()
+	}
+
+	for _, p := range this.players {
+		p.UpdateOthers()
+	}
 
 }
