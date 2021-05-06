@@ -19,6 +19,7 @@ PlayerTask 并通过PlayTaskMgr 管理PlayerTask
 
 type PlayerTask struct {
 	wstask     *gonet.WebSocketTask //用户的websocket链接
+	name       string               //玩家输入 默认为snake
 	id         uint32               //在Start()中初始化
 	room       *Room                //所属房间
 	scene      *Scene               //玩家场景
@@ -41,21 +42,20 @@ func NewPlayerTask(conn *websocket.Conn) *PlayerTask {
 
 func (this *PlayerTask) Start() {
 	this.id = rand.New(rand.NewSource(time.Now().UnixNano())).Uint32() % 100 // 待优化
-	this.wstask.Start()                                                      //开两个goroutine收发消息
-	this.wstask.Verify()                                                     // 使用验证通常是为了防止用户连接而不使用，占据服务器资源 验证客户端是否合法后可以减少这种情况
+	this.name = "snake"
+	this.wstask.Start()  //开两个goroutine收发消息
+	this.wstask.Verify() // 使用验证通常是为了防止用户连接而不使用，占据服务器资源 验证客户端是否合法后可以减少这种情况
 
 	PlayerTaskMgr_GetMe().Add(this) //添加到PTmgr管理
 
-	//Todo 分配房间
-	//this.scene.head.Id = this.id
-
+	//分配房间
 	room, err := RoomMgr_GetMe().GetRoom(this)
 	if nil != err {
 		glog.Error("[roomserver] Allocate room fail ", err)
 		return
 	}
 	this.scene.room = room
-
+	this.scene.snake.thisplayer = this
 }
 
 //todo ParseMsg
@@ -74,13 +74,13 @@ func (this *PlayerTask) ParseMsg(data []byte, flag byte) bool {
 }
 
 //todo OnClose()
-func (PT *PlayerTask) OnClose() {
+func (this *PlayerTask) OnClose() {
 
-	PT.wstask.Close()
-	PlayerTaskMgr_GetMe().Del(PT)
+	this.wstask.Close()
+	PlayerTaskMgr_GetMe().Del(this)
 
-	PT.room = nil
-	PT.scene = nil
+	this.room = nil
+	this.scene = nil
 }
 
 func (this *PlayerTask) Update() {
@@ -96,7 +96,7 @@ func (this *PlayerTask) UpdateOthers() {
 		return
 	}
 
-	this.scene.UpdatePos()
+	this.scene.UpdateOthersSnake()
 }
 
 func (this *PlayerTask) SendSceneMsg() bool {
