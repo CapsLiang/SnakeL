@@ -40,7 +40,11 @@ func (r RoomServer) OnWSAccept(conn *websocket.Conn) {
 }
 
 func (r RoomServer) Init() bool {
-	//todo: RoomGrpcClient_GetMe().Init() 通过grpc获取此房间的ip port
+	//RoomGrpcClient_GetMe().Init() 通过grpc获取此房间的ip port
+	if !RoomGrpcClient_GetMe().Init() {
+		glog.Error("[gRPC] Room Client Init Fail")
+		return false
+	}
 
 	go func() {
 		//开一条goroutine 通过gonet提供的接口读取配置并监听
@@ -62,7 +66,8 @@ func (r RoomServer) MainLoop() {
 }
 
 func (r RoomServer) Final() bool {
-	//todo: RoomGrpcClient_GetMe().Close()
+	//关闭RPCClient
+	RoomGrpcClient_GetMe().Close()
 	return true
 }
 
