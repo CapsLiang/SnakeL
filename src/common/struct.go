@@ -48,6 +48,7 @@ const (
 )
 
 type POINT struct {
+	//Id uint32
 	X float64
 	Y float64
 }
@@ -57,7 +58,7 @@ type Circle struct {
 	radius float64
 }
 
-type MsgType uint16
+type MsgType uint8
 
 const (
 	//MsgType_Token  MsgType = 0
@@ -65,7 +66,12 @@ const (
 	//MsgType_Finsh  MsgType = 2
 	//MsgType_Shoot  MsgType = 3
 	//MsgType_Heart  MsgType = 4
-	MsgType_Direct MsgType = 0
+	MsgType_Direct MsgType = 0 //传角度
+)
+
+//蛇
+const (
+	SnakeRadius float64 = 0.5
 )
 
 //建议用二进制传angle
