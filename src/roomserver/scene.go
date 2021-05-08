@@ -40,7 +40,8 @@ type Scene struct {
 
 	others []SnakeBody //其他人的信息
 
-	preTime int64 //上一帧时间
+	speed   float64 //蛇的移动速度
+	preTime int64   //上一帧时间
 }
 
 func (this *Scene) AddFoods() {
@@ -94,9 +95,15 @@ func (this *Scene) CollisionDetection() bool {
 	//吃食物
 	for i, v := range mFoods.foodlist {
 		if this.EatJuge(i, v) {
-			mFoods.eatfood[i] = true
 			this.EatFood(v)
+			mFoods.eatfood[i] = true
 		}
+	}
+
+	//撞人
+	if this.SnakeCollisionJudge() {
+		this.snake.SnakeDie()
+		return true
 	}
 
 	return false
@@ -190,28 +197,37 @@ func (this *Scene) InitSnake() {
 		Y: heady - 50,
 	}
 
+	this.snake.head = temhead //初始化新生成的头
 	this.snake.id = this.snake.thisplayer.id
 	this.snake.name = this.snake.thisplayer.name
 	this.snake.direct = this.snake.thisplayer.angle
+	this.snake.radius = common.SnakeRadius
+	this.snake.score = 0
+	//this.snake.invincible = true //无敌
 
-	this.snake.head = temhead //初始化新生成的头
 	//身体 默认向右移动
 	for i := 1; i <= 3; i++ {
 		this.snake.body = append(this.snake.body, common.POINT{
-			X: temhead.X - 2*float64(i)*common.SnakeRadius,
+			X: temhead.X - 2*float64(i)*this.snake.radius,
 			Y: temhead.Y,
 		})
 	}
-
-	this.snake.score = 0
-	this.snake.radius = 10
-	//this.snake.invincible = true //无敌
-
 }
 
 func (this *Scene) UpdateSnakePOINT(angle uint32) {
-	space := common.SceneSpeed * float64(((time.Now().UnixNano()/1e6)-(this.preTime))/1000) //相差(毫秒 / 1000) 即每秒
-	this.preTime = (time.Now().UnixNano() / 1e6)                                            //毫秒
+	//space := common.SceneSpeed * float64(((time.Now().UnixNano()/1e6)-(this.preTime))/1000) //相差(毫秒 / 1000) 即每秒
+	//this.preTime = (time.Now().UnixNano() / 1e6)                                            //毫秒
+	//
+	//this.SnakeMove(angle, space)
+
+	frame := float64((time.Now().UnixNano() / 1e6) - (this.preTime)) //相差多少毫秒
+	if frame > common.FrameTime {
+		frame = common.FrameTime
+	}
+
+	space := common.SceneSpeed * (frame / 1000) //速度像素/s 相差(毫秒 / 1000)即每秒
+
+	this.preTime = time.Now().UnixNano() / 1e6 //毫秒
 
 	this.SnakeMove(angle, space)
 }
@@ -240,6 +256,10 @@ func (this *Scene) UpdateOthersSnake() {
 		}
 	}
 
+}
+
+func (this *Scene) UpdateSpeed(Speed float64) {
+	this.speed = Speed
 }
 
 func (this *Scene) SnakeMove(angle uint32, space float64) {

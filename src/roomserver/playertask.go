@@ -2,7 +2,9 @@ package main
 
 import (
 	"base/gonet"
+	"bytes"
 	"common"
+	"encoding/binary"
 	"github.com/golang/glog"
 	"github.com/gorilla/websocket"
 	"math/rand"
@@ -29,9 +31,18 @@ type PlayerTask struct {
 
 func NewPlayerTask(conn *websocket.Conn) *PlayerTask {
 	temPTask := &PlayerTask{
-		wstask:     gonet.NewWebSocketTask(conn),
+		wstask: gonet.NewWebSocketTask(conn),
+		//name:       "",
+		//id:         0,
+		//room:       nil,
+		scene: &Scene{
+			snake:   SnakeBody{},
+			others:  []SnakeBody{},
+			speed:   common.SceneSpeed,
+			preTime: 0,
+		},
 		activetime: time.Now(), //开始时间
-		//todo 初始化场景
+		//angle:      0, //在parsemsg中被赋值
 	}
 
 	// 需要实现 ParseMsg() OnClose()
@@ -68,9 +79,48 @@ func (this *PlayerTask) ParseMsg(data []byte, flag byte) bool {
 	msgtype := common.MsgType(uint16(data[2]))
 
 	switch msgtype {
+	case common.MsgType_Move:
+		var angle uint32
+		err := binary.Read(bytes.NewReader(data[4:]), binary.LittleEndian, &angle)
+		if nil != err {
+			glog.Error("[WS] Endian Trans Fail", data)
+			return false
+		}
+		glog.Info("[WS] Parse Msg Move ", angle)
+		if nil == this.room {
+			return false
+		}
+		if this.room.Isstop {
+			return false
+		}
+		this.angle = angle
 
+		if nil == this.scene {
+			return false
+		}
+
+		this.scene.UpdateSnakePOINT(angle)
+		this.scene.UpdateSpeed(common.SceneSpeed)
+
+	case common.MsgType_SpeedUp:
+		if nil == this.room {
+			return false
+		}
+		if this.room.Isstop {
+			return false
+		}
+		if nil == this.scene {
+			return false
+		}
+		this.scene.UpdateSpeed(common.SceneSpeed * common.SceneSpeedUp)
+
+	case common.MsgType_Finsh:
+		this.room.Close()
+
+	case common.MsgType_Heart:
+		this.wstask.AsyncSend(data, flag)
+	default:
 	}
-
 	return true
 }
 
