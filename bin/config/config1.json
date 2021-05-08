@@ -1,0 +1,23 @@
+{
+  "global": {
+  },
+  "logic": {
+    "listen": ":8080",
+    "db": "localhost:6379",
+    "log": "./log/log_logic1.log",
+    "grpc": "localhost:6001",
+    "redis": ":6379"
+  },
+  "room": {
+    "port": "9001",
+    "log": "./log/log_room1.log",
+    "grpc": ":6001",
+    "listen": ":9001",
+    "time": "120",
+    "navmesh": "../../bin/all_tiles_navmesh.bin"
+  },
+  "rcenter": {
+    "log": "./log/log_rcenter1.log",
+    "grpc": ":6001"
+  }
+}
