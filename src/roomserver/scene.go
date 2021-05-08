@@ -21,7 +21,8 @@ type SnakeBody struct {
 }
 
 func (this *SnakeBody) SnakeDie() {
-
+	glog.Info("[snake die]")
+	this.thisplayer.OnClose()
 }
 
 type FoodList struct {
@@ -88,6 +89,7 @@ func (this *Scene) GetFoodList() *FoodList {
 func (this *Scene) CollisionDetection() bool {
 	//撞墙检测
 	if this.WallCollision() {
+		glog.Info("[snake die] 撞墙了")
 		this.snake.SnakeDie()
 		return true
 	}
@@ -102,6 +104,7 @@ func (this *Scene) CollisionDetection() bool {
 
 	//撞人
 	if this.SnakeCollisionJudge() {
+		glog.Info("[snake die] 撞蛇了")
 		this.snake.SnakeDie()
 		return true
 	}
@@ -142,6 +145,7 @@ func (this *Scene) SnakeCollisionJudge() bool {
 		headD := math.Sqrt(headX*headX + headY*headY)
 		//头头相撞 小的死
 		if headD <= minD || len(this.snake.body) <= len(othersnake.body) {
+			glog.Info("[shake 撞头] 撞到了: ", othersnake.name, "id: ", othersnake.id)
 			return true
 		}
 
@@ -151,6 +155,7 @@ func (this *Scene) SnakeCollisionJudge() bool {
 			temY := head.Y - body.Y
 			d := math.Sqrt(temX*temX + temY*temY)
 			if d <= minD {
+				glog.Info("[shake 撞身体] 撞到了: ", othersnake.name, "id: ", othersnake.id)
 				return true
 			}
 		}
@@ -169,10 +174,10 @@ func (this *Scene) EatJuge(index int, food common.Food) bool {
 
 	//食物没被吃 并且到达了被吃的范围
 	if !mFoods.eatfood[index] && d <= float64(food.Energy)+this.snake.radius+common.EatFoodRadius {
+		glog.Info("Eat Food")
 		return true
 	}
 
-	glog.Info("Eat Food")
 	return false
 }
 
@@ -229,7 +234,7 @@ func (this *Scene) UpdateSnakePOINT(angle float64) {
 
 	this.preTime = time.Now().UnixNano() / 1e6 //毫秒
 
-	this.SnakeMove(angle, frame)
+	this.SnakeHeadMove(angle, frame)
 }
 
 //todo 传的是引用可以吗?
@@ -262,7 +267,7 @@ func (this *Scene) UpdateSpeed(Speed float64) {
 	this.speed = Speed
 }
 
-func (this *Scene) SnakeMove(angle float64, space float64) {
+func (this *Scene) SnakeHeadMove(angle float64, space float64) {
 	//蛇身越长 蛇的半径越大
 	temRadius := math.Floor(float64(12 + len(this.snake.body)/100))
 	this.snake.radius = temRadius
@@ -324,6 +329,7 @@ func (this *Scene) SnakeMove(angle float64, space float64) {
 
 func (this *Scene) SnakeBodyMove(newhead common.POINT, distance float64) {
 	//todo 计算出单位时间内移动的距离算出
+
 	//判断是否吃食物
 
 }
