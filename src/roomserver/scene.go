@@ -4,6 +4,7 @@ import (
 	"common"
 	"encoding/json"
 	"github.com/golang/glog"
+	"math"
 	"time"
 )
 
@@ -14,7 +15,13 @@ type SnakeBody struct {
 	direct     uint32
 	head       common.POINT
 	body       []common.POINT
+	score      int32
+	radius     float64
 	//invincible bool todo 无敌
+}
+
+func (this *SnakeBody) SnakeDie() {
+
 }
 
 type FoodList struct {
@@ -76,21 +83,103 @@ func (this *Scene) GetFoodList() *FoodList {
 	return mFoods
 }
 
-func (this *Scene) EatFood(head common.POINT) {
-	//todo this.snake.Head
-	if this.EatJuge(head) {
-		this.Grow(this.snake)
+//碰撞检测
+func (this *Scene) CollisionDetection() bool {
+	//撞墙检测
+	if this.WallCollision() {
+		this.snake.SnakeDie()
+		return true
 	}
+
+	//吃食物
+	for i, v := range mFoods.foodlist {
+		if this.EatJuge(i, v) {
+			mFoods.eatfood[i] = true
+			this.EatFood(v)
+		}
+	}
+
+	return false
 }
 
-func (this *Scene) EatJuge(head common.POINT) bool {
+// WallCollision 以下为碰撞检测部分
+//撞墙
+func (this *Scene) WallCollision() bool {
+
+	if this.snake.head.X-this.snake.radius <= 0 ||
+		this.snake.head.X+this.snake.radius >= common.SceneWidth ||
+		this.snake.head.Y-this.snake.radius <= 0 ||
+		this.snake.head.Y+this.snake.radius >= common.SceneHeight {
+		return true
+	}
+	return false
+}
+
+// SnakeCollisionJudge 撞人
+func (this *Scene) SnakeCollisionJudge() bool {
+
+	head := this.snake.head
+
+	var minD, headR, bodyR float64
+	headR = this.snake.radius
+	//todo invincible
+
+	//遍历所有其他snakebody 的蛇身
+	for _, othersnake := range this.others {
+		bodyR = othersnake.radius
+		minD = headR + bodyR
+
+		//检测头部是否碰撞
+		headX := head.X - othersnake.head.X
+		headY := head.Y - othersnake.head.Y
+		headD := math.Sqrt(headX*headX + headY*headY)
+		//头头相撞 小的死
+		if headD <= minD || len(this.snake.body) <= len(othersnake.body) {
+			return true
+		}
+
+		//检测头部与身体是否碰撞
+		for _, body := range othersnake.body {
+			temX := head.X - body.X
+			temY := head.Y - body.Y
+			d := math.Sqrt(temX*temX + temY*temY)
+			if d <= minD {
+				return true
+			}
+		}
+
+	}
+
+	return false
+}
+
+// EatJuge 撞食物
+func (this *Scene) EatJuge(index int, food common.Food) bool {
+
+	temX := this.snake.head.X - food.Stat.X
+	temY := this.snake.head.Y - food.Stat.Y
+	d := math.Sqrt(temX*temX + temY*temY)
+
+	//食物没被吃 并且到达了被吃的范围
+	if !mFoods.eatfood[index] && d <= float64(food.Energy)+this.snake.radius+common.EatFoodRadius {
+		return true
+	}
 
 	glog.Info("Eat Food")
 	return false
 }
 
-func (this *Scene) Grow(snak SnakeBody) {
+func (this *Scene) EatFood(food common.Food) {
 
+	this.snake.score = this.snake.score + food.Energy
+
+	if len(this.snake.body) >= 300 {
+		return
+	}
+
+	for i := 0; i < int(food.Energy); i++ {
+		this.snake.body = append(this.snake.body, this.snake.body[len(this.snake.body)-1])
+	}
 }
 
 func (this *Scene) InitSnake() {
@@ -113,6 +202,9 @@ func (this *Scene) InitSnake() {
 			Y: temhead.Y,
 		})
 	}
+
+	this.snake.score = 0
+	this.snake.radius = 10
 	//this.snake.invincible = true //无敌
 
 }
@@ -156,14 +248,22 @@ func (this *Scene) SnakeMove(angle uint32, space float64) {
 		X: 0,
 		Y: 0,
 	}
-	//SnakBodyMove
+
+	//碰撞检测 SnakBodyMove
 	this.SnakeBodyMove(newhead)
+	this.CollisionDetection()
 }
 
 func (this *Scene) SnakeBodyMove(newhead common.POINT) {
 	//todo 计算出单位时间内移动的距离算出
 	//判断是否吃食物
-	this.EatFood(this.snake.head)
+
+}
+
+//todo 转化为食物 断开连接
+func (this *Scene) SnakeDie(snake SnakeBody) {
+
+	snake.thisplayer.wstask.Close()
 }
 
 func (this *Scene) SceneMsg() []byte {
