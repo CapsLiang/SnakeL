@@ -58,10 +58,11 @@ const (
 
 //食物信息
 const (
-	FoodPoolNum uint32  = 2000
-	FoodNum     uint32  = 20
-	FoodEnergy  int32   = 5
-	FoodRadius  float64 = 5
+	FoodPoolNum   uint32  = 2000
+	FoodNum       uint32  = 20
+	FoodEnergy    int32   = 5
+	FoodRadius    float64 = 5
+	EatFoodRadius float64 = 5
 )
 
 type POINT struct {
