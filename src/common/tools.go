@@ -6,12 +6,12 @@ import (
 	"math/rand"
 )
 
-//求两点之间距离
+// TwoPointLen 求两点之间距离
 func TwoPointLen(a, b POINT) float64 {
 	return math.Sqrt(math.Pow(a.X-b.X, 2) + math.Pow(a.Y-b.Y, 2))
 }
 
-//求三角形外接圆
+// CircleOfTriangle 求三角形外接圆
 func CircleOfTriangle(a, b, c POINT) Circle {
 	var (
 		a1 = 2 * (b.X - a.X)
@@ -33,7 +33,7 @@ func CircleOfTriangle(a, b, c POINT) Circle {
 	}
 }
 
-//求最小覆盖圆
+// MinCircle 求最小覆盖圆
 func MinCircle(pArr []POINT) Circle {
 	temO := Circle{
 		center: pArr[0],
@@ -65,23 +65,12 @@ func MinCircle(pArr []POINT) Circle {
 	return temO
 }
 
-//type Snake struct {
-//	Name   string  //蛇名字
-//	Head   POINT   //蛇头
-//	Body   []POINT //蛇身数组
-//	Alive  bool    //是否存活
-//	Radius float64 //蛇的半径
-//
-//	Color     string //蛇身颜色
-//	HeadColor string //蛇头颜色
-//}
-
 func RandColor() uint32 {
 	//todo: 随机生成颜色
 	return 1 + uint32(rand.Intn(255))
 }
 
-//产生[min max]间的随机数
+// RandBetween 产生[min max]间的随机数
 func RandBetween(min, max int64) int64 {
 	if min == max {
 		return min
@@ -97,7 +86,7 @@ func RandBetween(min, max int64) int64 {
 	return min + rand.Int63n(n)
 }
 
-//产生[min max]间的随机数
+// RandBetweenUint32 产生[min max]间的随机数
 func RandBetweenUint32(min, max uint32) uint32 {
 	if min == max {
 		return min
@@ -113,13 +102,13 @@ func RandBetweenUint32(min, max uint32) uint32 {
 	return min + uint32(rand.Int63n(int64(max-min+1)))
 }
 
-//随机坐标float64
+// RandPOINTFloat64 随机坐标float64
 func RandPOINTFloat64() (X, Y float64) {
 	//随机生成[0..1)的float 不会撞墙
 	return rand.Float64() * SceneWidth, rand.Float64() * SceneWidth
 }
 
-//四舍五入 需要转换的话要转成int
-func round(x float64) float64 {
+// Round 四舍五入 需要转换的话要转成int
+func Round(x float64) float64 {
 	return math.Floor(x + 0.5)
 }
