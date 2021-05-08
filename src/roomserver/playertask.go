@@ -26,7 +26,7 @@ type PlayerTask struct {
 	room       *Room                //所属房间
 	scene      *Scene               //玩家场景
 	activetime time.Time            //活跃时间
-	angle      uint32               //角度 todo 在parsemsg中被赋值
+	angle      float64              //角度 todo 在parsemsg中被赋值
 }
 
 func NewPlayerTask(conn *websocket.Conn) *PlayerTask {
@@ -80,7 +80,7 @@ func (this *PlayerTask) ParseMsg(data []byte, flag byte) bool {
 
 	switch msgtype {
 	case common.MsgType_Move:
-		var angle uint32
+		var angle float64
 		err := binary.Read(bytes.NewReader(data[4:]), binary.LittleEndian, &angle)
 		if nil != err {
 			glog.Error("[WS] Endian Trans Fail", data)

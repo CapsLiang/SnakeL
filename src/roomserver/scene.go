@@ -12,7 +12,7 @@ type SnakeBody struct {
 	id         uint32
 	name       string
 	thisplayer *PlayerTask
-	direct     uint32
+	direct     float64
 	head       common.POINT
 	body       []common.POINT
 	score      int32
@@ -214,7 +214,7 @@ func (this *Scene) InitSnake() {
 	}
 }
 
-func (this *Scene) UpdateSnakePOINT(angle uint32) {
+func (this *Scene) UpdateSnakePOINT(angle float64) {
 	//space := common.SceneSpeed * float64(((time.Now().UnixNano()/1e6)-(this.preTime))/1000) //相差(毫秒 / 1000) 即每秒
 	//this.preTime = (time.Now().UnixNano() / 1e6)                                            //毫秒
 	//
@@ -225,11 +225,11 @@ func (this *Scene) UpdateSnakePOINT(angle uint32) {
 		frame = common.FrameTime
 	}
 
-	space := common.SceneSpeed * (frame / 1000) //速度像素/s 相差(毫秒 / 1000)即每秒
+	//space := common.SceneSpeed * (frame / 1000) //速度像素/s 相差(毫秒 / 1000)即每秒
 
 	this.preTime = time.Now().UnixNano() / 1e6 //毫秒
 
-	this.SnakeMove(angle, space)
+	this.SnakeMove(angle, frame)
 }
 
 //todo 传的是引用可以吗?
@@ -262,19 +262,67 @@ func (this *Scene) UpdateSpeed(Speed float64) {
 	this.speed = Speed
 }
 
-func (this *Scene) SnakeMove(angle uint32, space float64) {
-	//todo 算出蛇头移动后的坐标
-	newhead := common.POINT{
-		X: 0,
-		Y: 0,
+func (this *Scene) SnakeMove(angle float64, space float64) {
+	//蛇身越长 蛇的半径越大
+	temRadius := math.Floor(float64(12 + len(this.snake.body)/100))
+	this.snake.radius = temRadius
+	//蛇身越大 速度也需要改变
+	//this.speed = 105 + 400 / this.snake.radius
+
+	//根据转向角度计算 蛇头朝向
+	if math.Abs(angle-this.snake.direct) < 180 {
+		if angle-this.snake.direct > 0 {
+			if common.SnakeTurnSpeed*space > angle-this.snake.direct {
+				this.snake.direct = angle
+			} else {
+				this.snake.direct += common.SnakeTurnSpeed * space
+			}
+		} else if angle-this.snake.direct < 0 {
+			if common.SnakeTurnSpeed*space > this.snake.direct-angle {
+				this.snake.direct = angle
+			} else {
+				this.snake.direct -= common.SnakeTurnSpeed * space
+			}
+		}
 	}
 
+	if math.Abs(angle-this.snake.direct) > 180 {
+		if angle-this.snake.direct > 0 {
+			this.snake.direct -= common.SnakeTurnSpeed * space
+			if this.snake.direct < 0 {
+				this.snake.direct += 360
+				if this.snake.direct < angle {
+					this.snake.direct = angle
+				}
+			}
+		} else if angle-this.snake.direct < 0 {
+			this.snake.direct += common.SnakeTurnSpeed * space
+
+			if this.snake.direct > 360 {
+				this.snake.direct -= 360
+				if this.snake.direct > angle {
+					this.snake.direct = angle
+				}
+			}
+		}
+	}
+
+	moveX := this.speed * space / 1000 * math.Cos(math.Pi*this.snake.direct/180)
+	moveY := this.speed * space / 1000 * math.Sin(math.Pi*this.snake.direct/180)
+	moveDistance := this.speed * space / 1000
+	newhead := common.POINT{
+		X: this.snake.head.X + moveX,
+		Y: this.snake.head.Y - moveY,
+	}
 	//碰撞检测 SnakBodyMove
-	this.SnakeBodyMove(newhead)
+	this.SnakeBodyMove(newhead, moveDistance)
 	this.CollisionDetection()
+
+	this.snake.head.X += moveX
+	this.snake.head.Y -= moveY
 }
 
-func (this *Scene) SnakeBodyMove(newhead common.POINT) {
+func (this *Scene) SnakeBodyMove(newhead common.POINT, distance float64) {
 	//todo 计算出单位时间内移动的距离算出
 	//判断是否吃食物
 
