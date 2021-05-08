@@ -82,6 +82,8 @@ const (
 const (
 	// SnakeRadius 蛇的半径 10px
 	SnakeRadius float64 = 10
+	// SnakeTurnSpeed 蛇的转向速度 弧度/ms
+	SnakeTurnSpeed = 0.5
 )
 
 //以下为约定结构
