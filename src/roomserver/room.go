@@ -46,10 +46,12 @@ func NewRoom(rtype, rid uint32) *Room {
 
 func (this *Room) Start() {
 	this.isstart = true
+	fmt.Println("[roomserver] room start")
 	this.GameLoop() //开始游戏主循环
 }
 
 func (this *Room) GameLoop() {
+	fmt.Println("[roomserver] loop start")
 	timeTicker := time.NewTicker(time.Millisecond * 10) //10ms 发一次消息
 	stop := false
 	for !stop {
