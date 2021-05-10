@@ -246,9 +246,9 @@ func (this *Scene) UpdateSnakePOINT(angle float64) {
 func (this *Scene) UpdateOthersSnake() {
 
 	for _, p := range this.room.players {
-		if p.scene.others == nil {
-			p.scene.others = []SnakeBody{}
-		}
+		//if p.scene.others == nil {
+		//	p.scene.others = []SnakeBody{}
+		//}
 
 		for _, other := range this.room.players {
 			//如果不是本身的那一条连接
