@@ -38,14 +38,13 @@ type Scene struct {
 	room *Room //所属房间
 
 	snake SnakeBody //本条蛇
-
-	others []SnakeBody //其他人的信息
+	//others []SnakeBody //其他人的信息
 
 	speed   float64 //蛇的移动速度
 	preTime int64   //上一帧时间
 }
 
-func (this *Scene) AddFoods() {
+func (this *Room) AddFoods() {
 	//不存在时 创建食物数组
 	if nil == mFoods {
 		mFoods = &FoodList{
@@ -83,7 +82,7 @@ func (this *Scene) AddFoods() {
 	}
 }
 
-func (this *Scene) GetFoodList() *FoodList {
+func (this *Room) GetFoodList() *FoodList {
 	return mFoods
 }
 
@@ -135,7 +134,9 @@ func (this *Scene) SnakeCollisionJudge() bool {
 	//todo invincible
 
 	//遍历所有其他snakebody 的蛇身
-	for _, othersnake := range this.others {
+	for _, otherplayer := range this.room.players {
+
+		othersnake := otherplayer.scene.snake
 
 		minD = this.snake.radius + othersnake.radius
 
@@ -242,31 +243,31 @@ func (this *Scene) UpdateSnakePOINT(angle float64) {
 	this.SnakeHeadMove(angle, frame)
 }
 
-//todo 传的是引用可以吗?
-func (this *Scene) UpdateOthersSnake() {
-
-	for _, p := range this.room.players {
-		//if p.scene.others == nil {
-		//	p.scene.others = []SnakeBody{}
-		//}
-
-		for _, other := range this.room.players {
-			//如果不是本身的那一条连接
-			if p.id != other.id {
-				p.scene.others = append(p.scene.others, SnakeBody{
-					id:         other.scene.snake.id,
-					name:       other.scene.snake.name,
-					thisplayer: other.scene.snake.thisplayer,
-					direct:     0,
-					head:       other.scene.snake.head,
-					body:       other.scene.snake.body,
-				})
-
-			}
-		}
-	}
-
-}
+////todo 传的是引用可以吗?
+//func (this *Scene) UpdateOthersSnake() {
+//
+//	for _, p := range this.room.players {
+//		//if p.scene.others == nil {
+//		//	p.scene.others = []SnakeBody{}
+//		//}
+//
+//		for _, other := range this.room.players {
+//			//如果不是本身的那一条连接
+//			if p.id != other.id {
+//				p.scene.others = append(p.scene.others, SnakeBody{
+//					id:         other.scene.snake.id,
+//					name:       other.scene.snake.name,
+//					thisplayer: other.scene.snake.thisplayer,
+//					direct:     0,
+//					head:       other.scene.snake.head,
+//					body:       other.scene.snake.body,
+//				})
+//
+//			}
+//		}
+//	}
+//
+//}
 
 func (this *Scene) UpdateSpeed(Speed float64) {
 	this.speed = Speed
@@ -394,15 +395,17 @@ func (this *Scene) SceneMsg() []byte {
 		Head: this.snake.head,
 		Body: this.snake.body,
 	})
+
 	//其他蛇
-	for _, other := range this.others {
+	for _, other := range this.room.players {
 		retsceneMsg.OthersSnake = append(retsceneMsg.OthersSnake, common.RetSnakeBody{
-			Id:   other.id,
-			Name: other.name,
-			Head: other.head,
-			Body: other.body,
+			Id:   other.scene.snake.id,
+			Name: other.scene.snake.name,
+			Head: other.scene.snake.head,
+			Body: other.scene.snake.body,
 		})
 	}
+
 	//食物
 	for i := 0; i < int(common.FoodNum); i++ {
 		//发送所有没被吃的食物

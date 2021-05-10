@@ -138,13 +138,15 @@ func (this *Room) sendTime(t uint64) {
 }
 
 func (this *Room) update() {
-	glog.Info("[room]更新房间")
+	this.AddFoods()
+	glog.Info("[room]更新食物")
+
 	for _, p := range this.players {
 		p.Update()
 	}
-
-	for _, p := range this.players {
-		p.UpdateOthers()
-	}
+	glog.Info("[room]更新房间")
+	//for _, p := range this.players {
+	//	p.UpdateOthers()
+	//}
 
 }

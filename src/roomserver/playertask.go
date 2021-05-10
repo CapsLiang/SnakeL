@@ -36,8 +36,8 @@ func NewPlayerTask(conn *websocket.Conn) *PlayerTask {
 		//id:         0,
 		//room:       nil,
 		scene: &Scene{
-			snake:   SnakeBody{},
-			others:  []SnakeBody{},
+			snake: SnakeBody{},
+			//others:  []SnakeBody{},
 			speed:   common.SceneSpeed,
 			preTime: 0,
 		},
@@ -136,17 +136,17 @@ func (this *PlayerTask) Update() {
 	if nil == this.scene {
 		return
 	}
-	this.scene.AddFoods()
+
 	this.scene.UpdateSnakePOINT(this.angle)
 }
 
-func (this *PlayerTask) UpdateOthers() {
-	if nil == this.scene {
-		return
-	}
-
-	this.scene.UpdateOthersSnake()
-}
+//func (this *PlayerTask) UpdateOthers() {
+//	if nil == this.scene {
+//		return
+//	}
+//
+//	this.scene.UpdateOthersSnake()
+//}
 
 func (this *PlayerTask) SendSceneMsg() bool {
 	if nil == this.scene {
