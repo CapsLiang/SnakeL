@@ -1,5 +1,5 @@
 APPS = logicserver rcenterserver roomserver
-BASE = /../SnakeLBase
+BASE = /root/workspace/go/SnakeBase
 CAPSLIANG = /root/workspace/go/SnakeL
 
 BUILDVER = '0.1'
