@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"time"
 )
 
 // TwoPointLen 求两点之间距离
@@ -66,12 +67,14 @@ func MinCircle(pArr []POINT) Circle {
 }
 
 func RandColor() uint32 {
+	rand.Seed(time.Now().Unix())
 	//todo: 随机生成颜色
 	return 1 + uint32(rand.Intn(255))
 }
 
 // RandBetween 产生[min max]间的随机数
 func RandBetween(min, max int64) int64 {
+	rand.Seed(time.Now().Unix())
 	if min == max {
 		return min
 	}
@@ -88,6 +91,7 @@ func RandBetween(min, max int64) int64 {
 
 // RandBetweenUint32 产生[min max]间的随机数
 func RandBetweenUint32(min, max uint32) uint32 {
+	rand.Seed(time.Now().Unix())
 	if min == max {
 		return min
 	}
@@ -105,5 +109,6 @@ func RandBetweenUint32(min, max uint32) uint32 {
 // RandPOINTFloat64 随机坐标float64
 func RandPOINTFloat64() (X, Y float64) {
 	//随机生成[0..1)的float 不会撞墙
+	rand.Seed(time.Now().Unix())
 	return rand.Float64() * SceneWidth, rand.Float64() * SceneWidth
 }
