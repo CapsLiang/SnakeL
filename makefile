@@ -1,6 +1,6 @@
 APPS = logicserver rcenterserver roomserver
-BASE = D:\PATH\myvendor
-CAPSLIANG = D:\WorkSpace\GolandProjects\SnakeL
+BASE = /../SnakeLBase
+CAPSLIANG = /root/workspace/go/SnakeL
 
 BUILDVER = '0.1'
 BUILDDATE = 'date +%F'
