@@ -72,7 +72,7 @@ func (this *PlayerTask) Start() {
 
 //todo ParseMsg
 func (this *PlayerTask) ParseMsg(data []byte, flag byte) bool {
-	glog.Info("[roomserver][WS] Parse Msg", data)
+	glog.Info("[WS] Parse Msg", data)
 	this.activetime = time.Now()
 
 	//todo msg需要约定
@@ -83,10 +83,10 @@ func (this *PlayerTask) ParseMsg(data []byte, flag byte) bool {
 		var angle float64
 		err := binary.Read(bytes.NewReader(data[4:]), binary.LittleEndian, &angle)
 		if nil != err {
-			glog.Error("[roomserver][WS] Endian Trans Fail", data)
+			glog.Error("[WS] Endian Trans Fail", data)
 			return false
 		}
-		glog.Info("[roomserver][WS] Parse Msg Move ", angle)
+		glog.Info("[WS] Parse Msg Move ", angle)
 		if nil == this.room {
 			return false
 		}
@@ -155,7 +155,7 @@ func (this *PlayerTask) SendSceneMsg() bool {
 
 	msg := this.scene.SceneMsg()
 	if nil == msg {
-		glog.Error("[roomserver][Scene] 消息为空")
+		glog.Error("[Scene] 消息为空")
 		return false
 	}
 	//todo 传输现在为json
@@ -231,7 +231,7 @@ func (thisPTMgr *PlayerTaskMgr) iTimeAction() {
 					if !t.wstask.Stop() {
 						thisPTMgr.Del(t) //删除超时链接
 					}
-					glog.Info("[roomserver][Player] 连接超时, 玩家id=", t.id) //连接超时
+					glog.Info("[Player] 连接超时, 玩家id=", t.id) //连接超时
 				}
 				ptasks = ptasks[:0] //置空
 			}

@@ -50,13 +50,13 @@ func (this *AccRedis) GetIncID() (uint32, error) {
 
 	r, err := conn.Do("INCR", global_id)
 	if nil != err {
-		glog.Error("[login][Redis] Global Id Inc 失败")
+		glog.Error("[Redis] Global Id Inc 失败")
 		return 0, err
 	}
 
 	value, err := redis.Int(r, nil)
 	if nil != err {
-		glog.Error("[login][Redis] Global Id Parse 失败")
+		glog.Error("[Redis] Global Id Parse 失败")
 		return 0, err
 	}
 
@@ -69,7 +69,7 @@ func (this *AccRedis) SetDeviceIdAndIp(id uint32, msg *common.ReqGetIDMsg) error
 
 	_, err := conn.Do("SET", msg.DeviceId+":"+msg.Ip, id)
 	if nil != err {
-		glog.Error("[login][Redis] Set Userinfo 失败", err)
+		glog.Error("[Redis] Set Userinfo 失败", err)
 		return err
 	}
 

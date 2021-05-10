@@ -34,30 +34,30 @@ func (this *RoomService) Route(conn proto.StreamRoomService_RouteServer) error {
 	for {
 		stream, err := conn.Recv()
 		if io.EOF == err {
-			glog.Info("[recenterserver][gRPC] Server Got EOF")
+			glog.Info("[gRPC] Server Got EOF")
 			return nil
 		}
 
 		if nil != err {
-			glog.Error("[recenterserver][gRPC] Server Error ", err)
+			glog.Error("[gRPC] Server Error ", err)
 			return err
 		}
 
-		glog.Info("[recenterserver][gRPC] Server Recv: ", stream.Data)
+		glog.Info("[gRPC] Server Recv: ", stream.Data)
 
 		switch stream.Type {
 		case proto.MsgType_Regist:
 			var info proto.ConnectRoomInfo
 			err := json.Unmarshal(stream.Data, &info)
 			if nil != err {
-				glog.Error("[recenterserver] Json to Struct Error, ", err)
+				glog.Error("[Common] Json to Struct Error, ", err)
 				return err
 			}
-			fmt.Println("[recenterserver] Server Got Regist Msg ", info.Ip, ",", info.Port)
+			fmt.Println("Server Got Regist Msg ", info.Ip, ",", info.Port)
 			RcenterServer_GetMe().RegisterRoomServer(info.Ip, info.Port, 0)
 			break
 		case proto.MsgType_Update:
-			fmt.Println("[recenterserver] Server Got Update Msg")
+			fmt.Println("Server Got Update Msg")
 			break
 		}
 
@@ -69,7 +69,7 @@ func StartGrpcServer() bool {
 	addr := env.Get("rcenter", "grpc")
 	listen, err := net.Listen("tcp", addr)
 	if nil != err {
-		glog.Error("[recenterserver][StartGrpcServer] Bind Port Error, Port=", addr, ",", err)
+		glog.Error("[Start] Bind Port Error, Port=", addr, ",", err)
 		return false
 	}
 
@@ -83,7 +83,7 @@ func StartGrpcServer() bool {
 		}
 	}()
 
-	glog.Info("[recenterserver][gRPC] Start Server Success, ", s.GetServiceInfo())
+	glog.Info("[gRPC] Start Server Success, ", s.GetServiceInfo())
 
 	return true
 }

@@ -81,12 +81,12 @@ func (this *Room) GameLoop() {
 func (this *Room) AddPlayer(player *PlayerTask) error {
 
 	if this.checkPlayer(player) {
-		glog.Info("[roomserver][Room] ", player.id, "玩家已经在[", this.roomid, "]房间里面了")
+		glog.Info("[Room] ", player.id, "玩家已经在[", this.roomid, "]房间里面了")
 		return nil
 	}
 	if this.curnum >= MaxPlayerNum {
-		glog.Error("[roomserver][Room] 房间已满")
-		return errors.New("[roomserver]room is full")
+		glog.Error("[Room] 房间已满")
+		return errors.New("room is full")
 	}
 
 	this.curnum++
@@ -129,7 +129,7 @@ func (this *Room) sendTime(t uint64) {
 		}
 		jstr, err := json.Marshal(t)
 		if err != nil {
-			glog.Error("[roomserver][Time] marshal jsonMsg err")
+			glog.Error("[Time] marshal jsonMsg err")
 			return
 		}
 		fmt.Println(string(jstr))

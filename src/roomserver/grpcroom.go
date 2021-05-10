@@ -32,12 +32,12 @@ func (this *RoomGrpcClient) Init() bool {
 	var err error
 	this.conn, err = grpc.Dial(env.Get("room", "grpc"), grpc.WithInsecure())
 	if nil != err {
-		glog.Error("[roomserver][gRPC] Connect Fail ", err)
+		glog.Error("[gRPC] Connect Fail ", err)
 		return false
 	}
 
 	if !this.InitClient() {
-		glog.Error("[roomserver][gRPC] Init Client Fail")
+		glog.Error("[gRPC] Init Client Fail")
 		return false
 	}
 
@@ -50,7 +50,7 @@ func (this *RoomGrpcClient) InitClient() bool {
 
 	this.mRouteClient, err = client.Route(context.Background())
 	if nil != err {
-		glog.Error("[roomserver][gRPC] InitClient Error ", err)
+		glog.Error("[gRPC] InitClient Error ", err)
 		return false
 	}
 
@@ -59,13 +59,13 @@ func (this *RoomGrpcClient) InitClient() bool {
 
 func (this *RoomGrpcClient) SendRegist() bool {
 	if nil == this.mRouteClient {
-		glog.Error("[roomserver][gRPC] Route Client is nil ")
+		glog.Error("[gRPC] Route Client is nil ")
 		return false
 	}
 
 	port, err := strconv.Atoi(env.Get("room", "port"))
 	if nil != err {
-		glog.Error("[roomserver][Common] String to Int Error, ", err)
+		glog.Error("[Common] String to Int Error, ", err)
 		return false
 	}
 
@@ -74,7 +74,7 @@ func (this *RoomGrpcClient) SendRegist() bool {
 		Port: uint32(port),
 	})
 	if nil != err {
-		glog.Error("[roomserver][Common]Struct to Json Error, ", err)
+		glog.Error("[Common]Struct to Json Error, ", err)
 		return false
 	}
 

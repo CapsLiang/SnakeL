@@ -21,7 +21,7 @@ type SnakeBody struct {
 }
 
 func (this *SnakeBody) SnakeDie() {
-	glog.Info("[roomserver][snake die]")
+	glog.Info("[snake die]")
 	this.thisplayer.OnClose()
 }
 
@@ -63,7 +63,7 @@ func (this *Scene) AddFoods() {
 				Stat:   common.POINT{X: x - 10, Y: y - 10},
 			})
 		}
-		glog.Info("[roomserver] 生成食物数组")
+		glog.Info("生成食物数组")
 	}
 	//食物未生成够 添加食物
 	if len(mFoods.foodlist) < cap(mFoods.foodlist) {
@@ -79,7 +79,7 @@ func (this *Scene) AddFoods() {
 				mFoods.eatfood[i] = false
 			}
 		}
-		glog.Info("[roomserver] 填满食物数组")
+		glog.Info("填满食物数组")
 	}
 }
 
@@ -91,7 +91,7 @@ func (this *Scene) GetFoodList() *FoodList {
 func (this *Scene) CollisionDetection() bool {
 	//撞墙检测
 	if this.WallCollision() {
-		glog.Info("[roomserver][snake die] 撞墙了", "玩家: ", this.snake.thisplayer.id)
+		glog.Info("[snake die] 撞墙了", "玩家: ", this.snake.thisplayer.id)
 		this.snake.SnakeDie()
 		return true
 	}
@@ -101,13 +101,13 @@ func (this *Scene) CollisionDetection() bool {
 		if this.EatJuge(i, v) {
 			this.EatFood(v)
 			mFoods.eatfood[i] = true
-			glog.Info("[roomserver] [snake eat] 吃食物", "玩家: ", this.snake.thisplayer.id)
+			glog.Info("[snake eat] 吃食物", "玩家: ", this.snake.thisplayer.id)
 		}
 	}
 
 	//撞人
 	if this.SnakeCollisionJudge() {
-		glog.Info("[roomserver][snake die] 撞蛇了", "玩家: ", this.snake.thisplayer.id)
+		glog.Info("[snake die] 撞蛇了", "玩家: ", this.snake.thisplayer.id)
 		this.snake.SnakeDie()
 		return true
 	}
@@ -148,7 +148,7 @@ func (this *Scene) SnakeCollisionJudge() bool {
 		headD := math.Sqrt(headX*headX + headY*headY)
 		//头头相撞 小的死
 		if headD <= minD || len(this.snake.body) <= len(othersnake.body) {
-			glog.Info("[roomserver][shake 撞头] 撞到了: ", othersnake.name, "id: ", othersnake.id)
+			glog.Info("[shake 撞头] 撞到了: ", othersnake.name, "id: ", othersnake.id)
 			return true
 		}
 
@@ -158,7 +158,7 @@ func (this *Scene) SnakeCollisionJudge() bool {
 			temY := head.Y - body.Y
 			d := math.Sqrt(temX*temX + temY*temY)
 			if d <= minD {
-				glog.Info("[roomserver][shake 撞身体] 撞到了: ", othersnake.name, "id: ", othersnake.id)
+				glog.Info("[shake 撞身体] 撞到了: ", othersnake.name, "id: ", othersnake.id)
 				return true
 			}
 		}
@@ -177,7 +177,7 @@ func (this *Scene) EatJuge(index int, food common.Food) bool {
 
 	//食物没被吃 并且到达了被吃的范围
 	if !mFoods.eatfood[index] && d <= float64(food.Energy)+this.snake.radius+common.EatFoodRadius {
-		glog.Info("[roomserver]Eat Food")
+		glog.Info("Should Eat Food")
 		return true
 	}
 
@@ -409,7 +409,7 @@ func (this *Scene) SceneMsg() []byte {
 
 	bytes, err := json.Marshal(retsceneMsg)
 	if nil != err {
-		glog.Error("[roomserver][Scene] SceneMsg 序列化出错 ", err)
+		glog.Error("[Scene] SceneMsg 序列化出错 ", err)
 		return nil
 	}
 

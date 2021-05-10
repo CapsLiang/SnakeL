@@ -40,7 +40,7 @@ func (this *RoomMgr) start() {
 			this.runRoom[rid] = nil
 			this.Load--
 			delete(this.runRoom, rid)
-			glog.Info("[roomserver][Game]room ", rid, " end")
+			glog.Info("[Game]room ", rid, " end")
 			this.mutex.Unlock()
 		}
 	}
@@ -48,16 +48,16 @@ func (this *RoomMgr) start() {
 
 //给玩家分配可用房间
 func (this *RoomMgr) GetRoom(player *PlayerTask) (*Room, error) {
-	glog.Info("[roomserver][roommgr] GetRoom")
+	glog.Info("[roommgr] GetRoom")
 	this.mutex.Lock()
 	defer this.mutex.Unlock()
 	room, ok := this.unFullRoom.Front().(*Room)
 	if !ok && room == nil {
-		fmt.Println("[roomserver] 当前没有空房，创建新房")
+		fmt.Println("当前没有空房，创建新房")
 		rid := this.getNextRoomid()
 		room = NewRoom(common.CommonRoom, rid)
 		if !room.IsFull() {
-			fmt.Println("[roomserver] push")
+			fmt.Println("push")
 			this.unFullRoom.Push(room)
 			r, err := this.unFullRoom.Front().(*Room)
 			fmt.Println("pu", r, err)
