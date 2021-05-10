@@ -107,8 +107,3 @@ func RandPOINTFloat64() (X, Y float64) {
 	//随机生成[0..1)的float 不会撞墙
 	return rand.Float64() * SceneWidth, rand.Float64() * SceneWidth
 }
-
-// Round 四舍五入 需要转换的话要转成int
-func Round(x float64) float64 {
-	return math.Floor(x + 0.5)
-}
