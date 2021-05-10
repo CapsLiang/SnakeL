@@ -136,7 +136,7 @@ func (this *PlayerTask) Update() {
 	if nil == this.scene {
 		return
 	}
-
+	this.scene.AddFoods()
 	this.scene.UpdateSnakePOINT(this.angle)
 }
 
