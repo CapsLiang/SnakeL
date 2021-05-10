@@ -314,23 +314,50 @@ func (this *Scene) SnakeHeadMove(angle float64, space float64) {
 
 	moveX := this.speed * space / 1000 * math.Cos(math.Pi*this.snake.direct/180)
 	moveY := this.speed * space / 1000 * math.Sin(math.Pi*this.snake.direct/180)
-	moveDistance := this.speed * space / 1000
+	//moveDistance := this.speed * space / 1000
 	newhead := common.POINT{
 		X: this.snake.head.X + moveX,
 		Y: this.snake.head.Y - moveY,
 	}
 	//碰撞检测 SnakBodyMove
-	this.SnakeBodyMove(newhead, moveDistance)
+	this.SnakeBodyMove(newhead)
 	this.CollisionDetection()
 
 	this.snake.head.X += moveX
 	this.snake.head.Y -= moveY
 }
 
-func (this *Scene) SnakeBodyMove(newhead common.POINT, distance float64) {
+func (this *Scene) SnakeBodyMove(newhead common.POINT) {
 	//todo 计算出单位时间内移动的距离算出
+	for i := len(this.snake.body) - 1; i > 0; i-- {
+		this.snake.body[i] = this.snake.body[i-1]
+	}
+	this.snake.body[0] = this.snake.head
+	this.snake.head = newhead
 
-	//判断是否吃食物
+	//if this.snake.movedistance >= 2 {
+	//	this.snake.movedistance = 0
+	//	dx := newhead.X - this.snake.head.X
+	//	dy := newhead.Y - this.snake.head.Y
+	//
+	//	for i:= len(this.snake.body) - 1; i > 0 ;i-- {
+	//		this.snake.body[i] = this.snake.body[i - 1]
+	//	}
+	//	this.snake.body[0] = this.snake.head
+	//
+	//	if math.Round(dx) == 0 {
+	//
+	//		if dy > 0  {
+	//
+	//		}
+	//
+	//		if dy < 0 {
+	//
+	//		}
+	//
+	//	}
+	//
+	//}
 
 }
 
