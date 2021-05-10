@@ -108,7 +108,6 @@ func (this *Scene) CollisionDetection() bool {
 	//撞人
 	if this.SnakeCollisionJudge() {
 		glog.Info("[snake die] 撞蛇了", "玩家: ", this.snake.thisplayer.id)
-		this.snake.SnakeDie()
 		return true
 	}
 
@@ -131,20 +130,18 @@ func (this *Scene) WallCollision() bool {
 // SnakeCollisionJudge 撞人
 func (this *Scene) SnakeCollisionJudge() bool {
 
-	head := this.snake.head
+	var minD float64
 
-	var minD, headR, bodyR float64
-	headR = this.snake.radius
 	//todo invincible
 
 	//遍历所有其他snakebody 的蛇身
 	for _, othersnake := range this.others {
-		bodyR = othersnake.radius
-		minD = headR + bodyR
+
+		minD = this.snake.radius + othersnake.radius
 
 		//检测头部是否碰撞
-		headX := head.X - othersnake.head.X
-		headY := head.Y - othersnake.head.Y
+		headX := this.snake.head.X - othersnake.head.X
+		headY := this.snake.head.Y - othersnake.head.Y
 		headD := math.Sqrt(headX*headX + headY*headY)
 		//头头相撞 小的死
 		if headD <= minD || len(this.snake.body) <= len(othersnake.body) {
@@ -154,8 +151,9 @@ func (this *Scene) SnakeCollisionJudge() bool {
 
 		//检测头部与身体是否碰撞
 		for _, body := range othersnake.body {
-			temX := head.X - body.X
-			temY := head.Y - body.Y
+			minD = this.snake.radius + othersnake.radius
+			temX := this.snake.head.X - body.X
+			temY := this.snake.head.Y - body.Y
 			d := math.Sqrt(temX*temX + temY*temY)
 			if d <= minD {
 				glog.Info("[shake 撞身体] 撞到了: ", othersnake.name, "id: ", othersnake.id)
@@ -324,8 +322,13 @@ func (this *Scene) SnakeHeadMove(angle float64, space float64) {
 	}
 	//this.snake.movedistance += moveDistance
 	//碰撞检测 SnakBodyMove
+	glog.Info("[新蛇头位置:]", "{", newhead.X, ",", newhead.Y, "}", "玩家ID:", this.snake.id, "玩家姓名:", this.snake.name)
 	this.SnakeBodyMove(newhead)
-	this.CollisionDetection()
+	dead := this.CollisionDetection()
+
+	if dead {
+		this.snake.SnakeDie()
+	}
 
 	this.snake.head.X += moveX
 	this.snake.head.Y -= moveY
@@ -397,7 +400,7 @@ func (this *Scene) SceneMsg() []byte {
 		})
 	}
 	//食物
-	for i := 0; i <= int(common.FoodNum); i++ {
+	for i := 0; i < int(common.FoodNum); i++ {
 		//发送所有没被吃的食物
 		if !mFoods.eatfood[i] {
 			retsceneMsg.FoodList = append(retsceneMsg.FoodList, common.Food{
