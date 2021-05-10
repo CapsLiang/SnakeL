@@ -36,13 +36,13 @@ func RoomServer_GetMe() *RoomServer {
 func (r RoomServer) OnWSAccept(conn *websocket.Conn) {
 	//创建玩家连接 分配房间
 	NewPlayerTask(conn).Start()
-	glog.Info("[WS] Connected websocket已连接")
+	glog.Info("[roomserver] [WS] Connected websocket已连接")
 }
 
 func (r RoomServer) Init() bool {
 	//RoomGrpcClient_GetMe().Init() 通过grpc获取此房间的ip port
 	if !RoomGrpcClient_GetMe().Init() {
-		glog.Error("[gRPC] Room Client Init Fail")
+		glog.Error("[roomserver] [gRPC] Room Client Init Fail")
 		return false
 	}
 
@@ -50,7 +50,7 @@ func (r RoomServer) Init() bool {
 		//开一条goroutine 通过gonet提供的接口读取配置并监听
 		err := r.roomser.WSBind(env.Get("room", "listen"))
 		if nil != err {
-			glog.Error("[Start] Bind Port Fail")
+			glog.Error("[roomserver] [Start] Bind Port Fail")
 		}
 	}()
 

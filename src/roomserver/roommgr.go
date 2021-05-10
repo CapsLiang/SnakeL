@@ -40,7 +40,7 @@ func (this *RoomMgr) start() {
 			this.runRoom[rid] = nil
 			this.Load--
 			delete(this.runRoom, rid)
-			glog.Info("[Game]room ", rid, " end")
+			glog.Info("[roomserver][Game]room ", rid, " end")
 			this.mutex.Unlock()
 		}
 	}
@@ -48,16 +48,16 @@ func (this *RoomMgr) start() {
 
 //给玩家分配可用房间
 func (this *RoomMgr) GetRoom(player *PlayerTask) (*Room, error) {
-	glog.Info("[roommgr] GetRoom")
+	glog.Info("[roomserver][roommgr] GetRoom")
 	this.mutex.Lock()
 	defer this.mutex.Unlock()
 	room, ok := this.unFullRoom.Front().(*Room)
 	if !ok && room == nil {
-		fmt.Println("当前没有空房，创建新房")
+		fmt.Println("[roomserver] 当前没有空房，创建新房")
 		rid := this.getNextRoomid()
 		room = NewRoom(common.CommonRoom, rid)
 		if !room.IsFull() {
-			fmt.Println("push")
+			fmt.Println("[roomserver] push")
 			this.unFullRoom.Push(room)
 			r, err := this.unFullRoom.Front().(*Room)
 			fmt.Println("pu", r, err)
@@ -67,16 +67,16 @@ func (this *RoomMgr) GetRoom(player *PlayerTask) (*Room, error) {
 
 	err := room.AddPlayer(player)
 	if err != nil {
-		fmt.Println("为玩家分配房间失败", room, player)
+		fmt.Println("[roomserver] 为玩家分配房间失败", room, player)
 		return nil, errors.New("distribute room error")
 	}
-	fmt.Println("为玩家", player, "分配房间", room)
+	fmt.Println("[roomserver] 为玩家", player, "分配房间", room)
 	if room.IsFull() {
-		fmt.Println("gamestart")
+		fmt.Println("[roomserver] gamestart")
 		this.runRoom[room.roomid] = room
 		this.unFullRoom.Pop()
 		r, err := this.unFullRoom.Front().(*Room)
-		fmt.Println("after pop:", r, err)
+		fmt.Println("[roomserver] after pop:", r, err)
 		go room.Start()
 	}
 	return room, nil

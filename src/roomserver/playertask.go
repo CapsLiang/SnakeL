@@ -62,7 +62,7 @@ func (this *PlayerTask) Start() {
 	//分配房间
 	room, err := RoomMgr_GetMe().GetRoom(this)
 	if nil != err {
-		glog.Error("[roomserver] Allocate room fail ", err)
+		glog.Error("[roomserver] 申请房间失败", err)
 		return
 	}
 	this.scene.room = room
@@ -72,7 +72,7 @@ func (this *PlayerTask) Start() {
 
 //todo ParseMsg
 func (this *PlayerTask) ParseMsg(data []byte, flag byte) bool {
-	glog.Info("[WS] Parse Msg", data)
+	glog.Info("[roomserver][WS] Parse Msg", data)
 	this.activetime = time.Now()
 
 	//todo msg需要约定
@@ -83,10 +83,10 @@ func (this *PlayerTask) ParseMsg(data []byte, flag byte) bool {
 		var angle float64
 		err := binary.Read(bytes.NewReader(data[4:]), binary.LittleEndian, &angle)
 		if nil != err {
-			glog.Error("[WS] Endian Trans Fail", data)
+			glog.Error("[roomserver][WS] Endian Trans Fail", data)
 			return false
 		}
-		glog.Info("[WS] Parse Msg Move ", angle)
+		glog.Info("[roomserver][WS] Parse Msg Move ", angle)
 		if nil == this.room {
 			return false
 		}
@@ -155,7 +155,7 @@ func (this *PlayerTask) SendSceneMsg() bool {
 
 	msg := this.scene.SceneMsg()
 	if nil == msg {
-		glog.Error("[Scene] Msg nil")
+		glog.Error("[roomserver][Scene] 消息为空")
 		return false
 	}
 	//todo 传输现在为json
@@ -231,7 +231,7 @@ func (thisPTMgr *PlayerTaskMgr) iTimeAction() {
 					if !t.wstask.Stop() {
 						thisPTMgr.Del(t) //删除超时链接
 					}
-					glog.Info("[Player] Connection timeout, player id=", t.id) //连接超时
+					glog.Info("[roomserver][Player] 连接超时, 玩家id=", t.id) //连接超时
 				}
 				ptasks = ptasks[:0] //置空
 			}
@@ -244,7 +244,7 @@ func (thisPTMgr *PlayerTaskMgr) iTimeAction() {
 //删除管理并断开连接
 func (thisPTMgr *PlayerTaskMgr) Del(PTask *PlayerTask) bool {
 	if nil == PTask {
-		glog.Error("[WS] Player Task Manager Del Fail,Player Task is Nil")
+		glog.Error("[roomserver][WS] Player Task Manager Del Fail,Player Task is Nil")
 		return false
 	}
 
@@ -257,7 +257,7 @@ func (thisPTMgr *PlayerTaskMgr) Del(PTask *PlayerTask) bool {
 		return false
 	}
 	if PTask != task {
-		glog.Error("[WS] Player Task Manager Del Fail, ", PTask.id, ",", &PTask, ",", &task)
+		glog.Error("[roomserver][WS] Player Task Manager Del Fail, ", PTask.id, ",", &PTask, ",", &task)
 		return false
 	}
 	delete(thisPTMgr.tasks, PTask.id)
@@ -267,7 +267,7 @@ func (thisPTMgr *PlayerTaskMgr) Del(PTask *PlayerTask) bool {
 //添加到map管理
 func (thisPTMgr *PlayerTaskMgr) Add(PTask *PlayerTask) bool {
 	if nil == PTask {
-		glog.Error("[WS] Player Task Manager Add Fail, Nil")
+		glog.Error("[roomserver][WS] Player Task Manager Add Fail, Nil")
 		return false
 	}
 

@@ -1,6 +1,9 @@
 {
   "global": {
   },
+  "serverip": {
+    "tencent": "1.117.112.113"
+  },
   "logic": {
     "listen": ":8080",
     "db": "localhost:6379",
@@ -13,8 +16,7 @@
     "log": "./log/log_room1.log",
     "grpc": ":6001",
     "listen": ":9001",
-    "time": "120",
-    "navmesh": "../../bin/all_tiles_navmesh.bin"
+    "time": "120"
   },
   "rcenter": {
     "log": "./log/log_rcenter1.log",

@@ -35,7 +35,7 @@ func RcenterServer_GetMe() *RcenterServer {
 
 func (this *RcenterServer) Init() bool {
 	if !StartGrpcServer() {
-		glog.Error("[gRPC] Start Server Fail")
+		glog.Error("[recenterserver][gRPC] RcenterServer Start Init() Server Fail")
 		return false
 	}
 

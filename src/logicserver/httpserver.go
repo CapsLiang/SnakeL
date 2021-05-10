@@ -26,11 +26,11 @@ func GetIDHandler(w http.ResponseWriter, r *http.Request) {
 		Ip:       r.FormValue("Ip"),
 	}
 
-	glog.Info("[login] Get msg", msg)
+	glog.Info("[login][httpserver] 收到设备信息", msg)
 
 	id, err := AccRedis_GetMe().GetIncID()
 	if nil != err {
-		glog.Error("[login] Get Inc Id Fail ", err)
+		glog.Error("[login][httpserver] 获取自增ID失败 ", err)
 		return
 	}
 
@@ -38,13 +38,13 @@ func GetIDHandler(w http.ResponseWriter, r *http.Request) {
 		Id: id,
 	})
 	if nil != err {
-		glog.Error("[login] Return id Fail ", err)
+		glog.Error("[login][httpserver] 返回ID失败 ", err)
 		return
 	}
 
 	err = AccRedis_GetMe().SetDeviceIdAndIp(id, &msg)
 	if nil != err {
-		glog.Error("[login] Set Userinfo Fail ", err)
+		glog.Error("[login][httpserver] Set 用户信息失败 ", err)
 		return
 	}
 
@@ -53,7 +53,7 @@ func GetIDHandler(w http.ResponseWriter, r *http.Request) {
 func GetRoomHandler(w http.ResponseWriter, r *http.Request) {
 	info, err := GetVailabelRoomInfo("token")
 	if nil != err {
-		glog.Error("[logic] RPC get room info fail ", err)
+		glog.Error("[login][httpserver] RPC获取房间信息失败 ", err)
 		return
 	}
 
@@ -71,7 +71,7 @@ func StartHttpServer() bool {
 	})
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/getname", GetIDHandler)
+	mux.HandleFunc("/getname", GetNameHandler)
 	mux.HandleFunc("/getroom", GetRoomHandler)
 	mux.HandleFunc("/getid", GetIDHandler)
 
@@ -79,7 +79,7 @@ func StartHttpServer() bool {
 	handler := c.Handler(mux)
 	http.ListenAndServe(addr, handler)
 
-	glog.Info("[Start] Bind Port Success, Port=", addr)
+	glog.Info("[StartHttpServer] Bind Port Success, Port=", addr)
 
 	return true
 }
