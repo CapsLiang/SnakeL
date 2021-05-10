@@ -144,7 +144,7 @@ func (this *Scene) SnakeCollisionJudge() bool {
 		headY := this.snake.head.Y - othersnake.head.Y
 		headD := math.Sqrt(headX*headX + headY*headY)
 		//头头相撞 小的死
-		if headD <= minD || len(this.snake.body) <= len(othersnake.body) {
+		if headD <= minD && len(this.snake.body) <= len(othersnake.body) {
 			glog.Info("[蛇头位置:]", "{", this.snake.head.X, ",", this.snake.head.Y, "}", "玩家ID:", this.snake.id, "玩家姓名:", this.snake.name)
 			glog.Info("[snake 撞头] 撞到了: ", othersnake.head.X, ",", othersnake.head.Y, "}", "另一玩家ID:", othersnake.id, "另一玩家姓名:", othersnake.name)
 			return true
@@ -205,8 +205,6 @@ func (this *Scene) InitSnake() {
 		Y: heady - 50,
 	}
 
-	glog.Info("[新生成蛇头位置:]", "{", temhead.X, ",", temhead.Y, "}", "玩家ID:", this.snake.id, "玩家姓名:", this.snake.name)
-
 	this.snake.head = temhead //初始化新生成的头
 	this.snake.id = this.snake.thisplayer.id
 	this.snake.name = this.snake.thisplayer.name
@@ -214,6 +212,8 @@ func (this *Scene) InitSnake() {
 	this.snake.radius = common.SnakeRadius
 	this.snake.score = 0
 	//this.snake.invincible = true //无敌
+
+	glog.Info("[新生成蛇头位置:]", "{", temhead.X, ",", temhead.Y, "}", "玩家ID:", this.snake.id, "玩家姓名:", this.snake.name)
 
 	//身体 默认向右移动 todo移动坐标有误
 	for i := 1; i <= 3; i++ {
