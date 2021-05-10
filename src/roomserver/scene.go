@@ -319,6 +319,7 @@ func (this *Scene) SnakeHeadMove(angle float64, space float64) {
 		X: this.snake.head.X + moveX,
 		Y: this.snake.head.Y - moveY,
 	}
+	//this.snake.movedistance += moveDistance
 	//碰撞检测 SnakBodyMove
 	this.SnakeBodyMove(newhead)
 	this.CollisionDetection()
