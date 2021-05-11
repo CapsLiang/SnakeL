@@ -18,12 +18,15 @@ type SnakeBody struct {
 	body       []common.POINT
 	score      int32
 	radius     float64
+	isdead     bool
 	//invincible bool todo 无敌
 }
 
 func (this *SnakeBody) SnakeDie() {
 	fmt.Println("id: ", this.id, "name: ", this.id, "die")
 	glog.Info("[snake die]")
+	this.isdead = true //死了
+	delete(this.thisplayer.room.players, this.thisplayer.id)
 	this.thisplayer.OnClose()
 }
 
@@ -96,7 +99,7 @@ func (this *Scene) CollisionDetection() bool {
 	if this.WallCollision() {
 		fmt.Println("[Snake Die] 玩家: ", this.snake.thisplayer.id, " 撞墙了")
 		glog.Info("[Snake Die] 玩家: ", this.snake.thisplayer.id, " 撞墙了")
-		this.snake.SnakeDie()
+		//this.snake.SnakeDie()
 		return true
 	}
 
@@ -114,7 +117,7 @@ func (this *Scene) CollisionDetection() bool {
 	if this.SnakeCollisionJudge() {
 		fmt.Println("[Snake Die] 玩家:", this.snake.thisplayer.id, "撞到了玩家")
 		glog.Info("[Snake Die] 玩家:", this.snake.thisplayer.id, "撞到了玩家")
-		this.snake.SnakeDie()
+		//this.snake.SnakeDie()
 		return true
 	}
 
@@ -232,6 +235,7 @@ func (this *Scene) InitSnake() {
 	this.snake.direct = this.snake.thisplayer.angle
 	this.snake.radius = common.SnakeRadius
 	this.snake.score = 0
+	this.snake.isdead = false //没死
 	//this.snake.invincible = true //无敌
 	fmt.Println("玩家ID: ", this.snake.id, " [新初始化蛇头位置:]", "{", temhead.X, ",", temhead.Y, "}", "玩家姓名:", this.snake.name)
 	glog.Info("玩家ID: ", this.snake.id, " [新初始化蛇头位置:]", "{", temhead.X, ",", temhead.Y, "}", "玩家姓名:", this.snake.name)
@@ -382,6 +386,10 @@ func (this *Scene) SnakeDie(snake SnakeBody) {
 }
 
 func (this *Scene) SceneMsg() []byte {
+
+	if this.snake.isdead {
+		return nil
+	}
 
 	//序列化场景信息 本条蛇 其他玩家 食物数组
 	var retsceneMsg common.RetSceneMsg
