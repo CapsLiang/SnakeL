@@ -110,5 +110,13 @@ func RandBetweenUint32(min, max uint32) uint32 {
 func RandPOINTFloat64() (X, Y float64) {
 	//随机生成[0..1)的float 不会撞墙
 	rand.Seed(time.Now().Unix())
-	return rand.Float64() * SceneWidth, rand.Float64() * SceneWidth
+	//[0.0,1.0)
+	return rand.Float64() * SceneWidth, rand.Float64() * SceneHeight
+}
+
+func SafeRandHeadFloat64(min, width, height float64) (X, Y float64) {
+	//随机生成[0..1)的float 不会撞墙
+	rand.Seed(time.Now().Unix())
+	//[0.0,1.0)
+	return min + rand.Float64()*(width-min), min + rand.Float64()*(height-min)
 }
