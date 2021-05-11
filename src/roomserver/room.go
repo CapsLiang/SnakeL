@@ -46,6 +46,11 @@ func NewRoom(rtype, rid uint32) *Room {
 
 func (this *Room) Start() {
 	this.isstart = true
+
+	for _, snake := range this.players {
+		snake.scene.InitSnake()
+	}
+
 	fmt.Println("[roomserver] room start")
 	this.GameLoop() //开始游戏主循环
 }

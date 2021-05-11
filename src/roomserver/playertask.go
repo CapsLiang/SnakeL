@@ -67,7 +67,7 @@ func (this *PlayerTask) Start() {
 	}
 	this.scene.room = room
 	this.scene.snake.thisplayer = this
-	this.scene.InitSnake() //初始化蛇
+	//this.scene.InitSnake() //初始化蛇
 }
 
 //todo ParseMsg
