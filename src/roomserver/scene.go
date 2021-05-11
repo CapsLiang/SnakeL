@@ -3,6 +3,7 @@ package main
 import (
 	"common"
 	"encoding/json"
+	"fmt"
 	"github.com/golang/glog"
 	"math"
 	"time"
@@ -21,6 +22,7 @@ type SnakeBody struct {
 }
 
 func (this *SnakeBody) SnakeDie() {
+	fmt.Println("id: ", this.id, "name: ", this.id, "die")
 	glog.Info("[snake die]")
 	this.thisplayer.OnClose()
 }
@@ -62,6 +64,7 @@ func (this *Room) AddFoods() {
 				Stat:   common.POINT{X: x - 10, Y: y - 10},
 			})
 		}
+		fmt.Println("生成食物数组")
 		glog.Info("生成食物数组")
 	}
 	//食物未生成够 添加食物
@@ -78,6 +81,7 @@ func (this *Room) AddFoods() {
 				mFoods.eatfood[i] = false
 			}
 		}
+		fmt.Println("填满食物数组")
 		glog.Info("填满食物数组")
 	}
 }
@@ -90,7 +94,8 @@ func (this *Room) GetFoodList() *FoodList {
 func (this *Scene) CollisionDetection() bool {
 	//撞墙检测
 	if this.WallCollision() {
-		glog.Info("[snake die] 撞墙了", "玩家: ", this.snake.thisplayer.id)
+		fmt.Println("[Snake Die] 玩家: ", this.snake.thisplayer.id, " 撞墙了")
+		glog.Info("[Snake Die] 玩家: ", this.snake.thisplayer.id, " 撞墙了")
 		this.snake.SnakeDie()
 		return true
 	}
@@ -100,13 +105,16 @@ func (this *Scene) CollisionDetection() bool {
 		if this.EatJuge(i, v) {
 			this.EatFood(v)
 			mFoods.eatfood[i] = true
-			glog.Info("[snake eat] 吃食物", "玩家: ", this.snake.thisplayer.id)
+			fmt.Println("[Snake Eat] 玩家: ", this.snake.thisplayer.id, " 吃食物")
+			glog.Info("[Snake Eat] 玩家: ", this.snake.thisplayer.id, " 吃食物")
 		}
 	}
 
 	//撞人
 	if this.SnakeCollisionJudge() {
-		glog.Info("[snake die] 撞蛇了", "玩家: ", this.snake.thisplayer.id)
+		fmt.Println("[Snake Die] 玩家:", this.snake.thisplayer.id, "撞到了玩家")
+		glog.Info("[Snake Die] 玩家:", this.snake.thisplayer.id, "撞到了玩家")
+		this.snake.SnakeDie()
 		return true
 	}
 
@@ -133,34 +141,46 @@ func (this *Scene) SnakeCollisionJudge() bool {
 
 	//todo invincible
 
-	//遍历所有其他snakebody 的蛇身
+	//遍历所有其他 player 的 蛇身 蛇头
 	for _, otherplayer := range this.room.players {
+		//不是自身的那条链接
+		if otherplayer != this.snake.thisplayer {
 
-		othersnake := otherplayer.scene.snake
+			fmt.Println(otherplayer)
+			if otherplayer.scene == nil {
+				continue
+			}
+			othersnake := &otherplayer.scene.snake
 
-		minD = this.snake.radius + othersnake.radius
-
-		//检测头部是否碰撞
-		headX := this.snake.head.X - othersnake.head.X
-		headY := this.snake.head.Y - othersnake.head.Y
-		headD := math.Sqrt(headX*headX + headY*headY)
-		//头头相撞 小的死
-		if headD <= minD && len(this.snake.body) <= len(othersnake.body) {
-			glog.Info("[蛇头位置:]", "{", this.snake.head.X, ",", this.snake.head.Y, "}", "玩家ID:", this.snake.id, "玩家姓名:", this.snake.name)
-			glog.Info("[snake 撞头] 撞到了: ", othersnake.head.X, ",", othersnake.head.Y, "}", "另一玩家ID:", othersnake.id, "另一玩家姓名:", othersnake.name)
-			return true
-		}
-
-		//检测头部与身体是否碰撞
-		for _, body := range othersnake.body {
 			minD = this.snake.radius + othersnake.radius
-			temX := this.snake.head.X - body.X
-			temY := this.snake.head.Y - body.Y
-			d := math.Sqrt(temX*temX + temY*temY)
-			if d <= minD {
-				glog.Info("[蛇头位置:]", "{", this.snake.head.X, ",", this.snake.head.Y, "}", "玩家ID:", this.snake.id, "玩家姓名:", this.snake.name)
-				glog.Info("[snake 撞身体] 撞到了: ", body.X, ",", body.Y, "}", "另一玩家ID:", othersnake.id, "另一玩家姓名:", othersnake.name)
+
+			//检测头部是否碰撞
+			headX := this.snake.head.X - othersnake.head.X
+			headY := this.snake.head.Y - othersnake.head.Y
+			headD := math.Sqrt(headX*headX + headY*headY)
+
+			//头头相撞 小的死
+			if headD <= minD && len(this.snake.body) < len(othersnake.body) {
+				fmt.Println("[Snake] 玩家ID: ", this.snake.id, "[蛇头位置: ]", " {", this.snake.head.X, " , ", this.snake.head.Y, "} ",
+					"撞到了另一玩家ID: ", othersnake.id, "碰撞的蛇头位置为: ", " {", othersnake.head.X, " , ", othersnake.head.Y, "} ")
+				glog.Info("[Snake] 玩家ID: ", this.snake.id, "[蛇头位置: ]", " {", this.snake.head.X, " , ", this.snake.head.Y, "} ",
+					"撞到了另一玩家ID: ", othersnake.id, "碰撞的蛇头位置为: ", " {", othersnake.head.X, " , ", othersnake.head.Y, "} ")
 				return true
+			}
+
+			//检测头部与身体是否碰撞
+			for _, body := range othersnake.body {
+				minD = this.snake.radius + othersnake.radius
+				temX := this.snake.head.X - body.X
+				temY := this.snake.head.Y - body.Y
+				d := math.Sqrt(temX*temX + temY*temY)
+				if d <= minD {
+					fmt.Println("[Snake] 玩家ID: ", this.snake.id, "[蛇头位置: ]", " {", this.snake.head.X, " , ", this.snake.head.Y, "} ",
+						"撞到了另一玩家ID: ", othersnake.id, "碰撞的蛇身位置为: ", " {", body.X, " , ", body.Y, "} ")
+					glog.Info("[Snake] 玩家ID: ", this.snake.id, "[蛇头位置: ]", " {", this.snake.head.X, " , ", this.snake.head.Y, "} ",
+						"撞到了另一玩家ID: ", othersnake.id, "碰撞的蛇身位置为: ", " {", body.X, " , ", body.Y, "} ")
+					return true
+				}
 			}
 		}
 
@@ -200,10 +220,10 @@ func (this *Scene) EatFood(food common.Food) {
 
 func (this *Scene) InitSnake() {
 
-	headx, heady := common.RandPOINTFloat64()
+	headx, heady := common.SafeRandHeadFloat64(100, common.SceneWidth-100, common.SceneHeight-100)
 	temhead := common.POINT{
-		X: headx - 50,
-		Y: heady - 50,
+		X: headx,
+		Y: heady,
 	}
 
 	this.snake.head = temhead //初始化新生成的头
@@ -213,16 +233,18 @@ func (this *Scene) InitSnake() {
 	this.snake.radius = common.SnakeRadius
 	this.snake.score = 0
 	//this.snake.invincible = true //无敌
-
-	glog.Info("[新生成蛇头位置:]", "{", temhead.X, ",", temhead.Y, "}", "玩家ID:", this.snake.id, "玩家姓名:", this.snake.name)
+	fmt.Println("玩家ID: ", this.snake.id, " [新初始化蛇头位置:]", "{", temhead.X, ",", temhead.Y, "}", "玩家姓名:", this.snake.name)
+	glog.Info("玩家ID: ", this.snake.id, " [新初始化蛇头位置:]", "{", temhead.X, ",", temhead.Y, "}", "玩家姓名:", this.snake.name)
 
 	//身体 默认向右移动 todo移动坐标有误
 	for i := 1; i <= 3; i++ {
 		this.snake.body = append(this.snake.body, common.POINT{
-			X: temhead.X - 1,
+			X: temhead.X - float64(i),
 			Y: temhead.Y,
 		})
 	}
+
+	fmt.Println("蛇身位置", this.snake.body)
 }
 
 func (this *Scene) UpdateSnakePOINT(angle float64) {
@@ -327,8 +349,12 @@ func (this *Scene) SnakeHeadMove(angle float64, space float64) {
 	}
 	//this.snake.movedistance += moveDistance
 	//碰撞检测 SnakBodyMove
-	glog.Info("[新蛇头位置:]", "{", newhead.X, ",", newhead.Y, "}", "玩家ID:", this.snake.id, "玩家姓名:", this.snake.name)
+	fmt.Println("[Snake Move] 玩家ID: ", this.snake.id, " [新生成蛇头位置:]", "{", newhead.X, ",", newhead.Y, "}", "玩家姓名:", this.snake.name)
+	glog.Info("[Snake Move] 玩家ID: ", this.snake.id, " [新生成蛇头位置:]", "{", newhead.X, ",", newhead.Y, "}", "玩家姓名:", this.snake.name)
 	this.SnakeBodyMove(newhead)
+
+	fmt.Println(this.snake.body)
+
 	dead := this.CollisionDetection()
 
 	if dead {
@@ -346,30 +372,6 @@ func (this *Scene) SnakeBodyMove(newhead common.POINT) {
 	}
 	this.snake.body[0] = this.snake.head
 	this.snake.head = newhead
-
-	//if this.snake.movedistance >= 2 {
-	//	this.snake.movedistance = 0
-	//	dx := newhead.X - this.snake.head.X
-	//	dy := newhead.Y - this.snake.head.Y
-	//
-	//	for i:= len(this.snake.body) - 1; i > 0 ;i-- {
-	//		this.snake.body[i] = this.snake.body[i - 1]
-	//	}
-	//	this.snake.body[0] = this.snake.head
-	//
-	//	if math.Round(dx) == 0 {
-	//
-	//		if dy > 0  {
-	//
-	//		}
-	//
-	//		if dy < 0 {
-	//
-	//		}
-	//
-	//	}
-	//
-	//}
 
 }
 
@@ -398,12 +400,16 @@ func (this *Scene) SceneMsg() []byte {
 
 	//其他蛇
 	for _, other := range this.room.players {
-		retsceneMsg.OthersSnake = append(retsceneMsg.OthersSnake, common.RetSnakeBody{
-			Id:   other.scene.snake.id,
-			Name: other.scene.snake.name,
-			Head: other.scene.snake.head,
-			Body: other.scene.snake.body,
-		})
+		if other != this.snake.thisplayer {
+			fmt.Println("玩家: ", this.snake.id, "[序列化] 不属于本条蛇的信息: ", other)
+			retsceneMsg.OthersSnake = append(retsceneMsg.OthersSnake, common.RetSnakeBody{
+				Id:   other.scene.snake.id,
+				Name: other.scene.snake.name,
+				Head: other.scene.snake.head,
+				Body: other.scene.snake.body,
+			})
+		}
+
 	}
 
 	//食物
