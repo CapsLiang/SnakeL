@@ -64,13 +64,23 @@ func (this *Room) GameLoop() {
 		select {
 		case <-timeTicker.C:
 			if this.timeloop%2 == 0 { //0.02s 20ms
+				fmt.Println("timeloop ", this.timeloop)
 				this.update()
 				this.sendRoomMsg()
+
+				fmt.Println("                                      ")
 			}
 
 			if this.timeloop%100 == 0 { //1s
 				this.sendTime(this.totgametime - this.timeloop/100)
 			}
+
+			if this.timeloop%500 == 0 { //5s
+				if this.curnum == 0 {
+					stop = true
+				}
+			}
+
 			if this.timeloop != 0 && this.timeloop%(this.totgametime*100) == 0 {
 				//超时
 				stop = true

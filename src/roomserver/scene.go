@@ -26,6 +26,7 @@ func (this *SnakeBody) SnakeDie() {
 	fmt.Println("id: ", this.id, "name: ", this.id, "die")
 	glog.Info("[snake die]")
 	this.isdead = true //死了
+	this.thisplayer.room.curnum--
 	delete(this.thisplayer.room.players, this.thisplayer.id)
 	this.thisplayer.OnClose()
 }
@@ -108,8 +109,6 @@ func (this *Scene) CollisionDetection() bool {
 		if this.EatJuge(i, v) {
 			this.EatFood(v)
 			mFoods.eatfood[i] = true
-			fmt.Println("[Snake Eat] 玩家: ", this.snake.thisplayer.id, " 吃食物")
-			glog.Info("[Snake Eat] 玩家: ", this.snake.thisplayer.id, " 吃食物")
 		}
 	}
 
@@ -209,6 +208,8 @@ func (this *Scene) EatJuge(index int, food common.Food) bool {
 }
 
 func (this *Scene) EatFood(food common.Food) {
+	fmt.Println("[Snake Eat] 玩家: ", this.snake.thisplayer.id, " 吃食物")
+	glog.Info("[Snake Eat] 玩家: ", this.snake.thisplayer.id, " 吃食物")
 
 	this.snake.score = this.snake.score + food.Energy
 
