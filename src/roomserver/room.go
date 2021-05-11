@@ -75,7 +75,7 @@ func (this *Room) GameLoop() {
 				this.sendTime(this.totgametime - this.timeloop/100)
 			}
 
-			if this.timeloop%500 == 0 { //5s
+			if this.timeloop%200 == 0 { //2s
 				if this.curnum == 0 {
 					stop = true
 				}
