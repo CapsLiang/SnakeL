@@ -233,7 +233,7 @@ func (this *Scene) InitSnake() {
 	this.snake.head = temhead //初始化新生成的头
 	this.snake.id = this.snake.thisplayer.id
 	this.snake.name = this.snake.thisplayer.name
-	this.snake.direct = this.snake.thisplayer.angle
+	this.snake.direct = this.snake.thisplayer.direct
 	this.snake.radius = common.SnakeRadius
 	this.snake.score = 0
 	this.snake.isdead = false //没死
@@ -355,6 +355,7 @@ func (this *Scene) SnakeHeadMove(angle float64, space float64) {
 	//this.snake.movedistance += moveDistance
 	//碰撞检测 SnakBodyMove
 	fmt.Println("[Snake Move] 玩家ID: ", this.snake.id, " [新生成蛇头位置:]", "{", newhead.X, ",", newhead.Y, "}", "玩家姓名:", this.snake.name)
+	fmt.Println("[蛇头方向:]", this.snake.direct)
 	glog.Info("[Snake Move] 玩家ID: ", this.snake.id, " [新生成蛇头位置:]", "{", newhead.X, ",", newhead.Y, "}", "玩家姓名:", this.snake.name)
 	this.SnakeBodyMove(newhead)
 

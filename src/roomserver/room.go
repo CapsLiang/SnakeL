@@ -134,7 +134,11 @@ func (this *Room) checkPlayer(player *PlayerTask) bool {
 
 func (this *Room) sendRoomMsg() {
 	for _, p := range this.players {
-		p.SendSceneMsg()
+		sendsucced := p.SendSceneMsg()
+		if sendsucced {
+			fmt.Println("[sendRoomMsg] 玩家: ", p.id, " 发送消息成功")
+			glog.Info("[sendRoomMsg] 玩家: ", p.id, " 发送消息成功")
+		}
 	}
 }
 
