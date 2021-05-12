@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"common"
 	"encoding/binary"
+	"fmt"
 	"github.com/golang/glog"
 	"github.com/gorilla/websocket"
 	"math/rand"
@@ -26,23 +27,18 @@ type PlayerTask struct {
 	room       *Room                //所属房间
 	scene      *Scene               //玩家场景
 	activetime time.Time            //活跃时间
-	angle      float64              //角度 todo 在parsemsg中被赋值
+	direct     float64
 }
 
 func NewPlayerTask(conn *websocket.Conn) *PlayerTask {
 	temPTask := &PlayerTask{
 		wstask: gonet.NewWebSocketTask(conn),
-		//name:       "",
-		//id:         0,
-		//room:       nil,
 		scene: &Scene{
-			snake: SnakeBody{},
-			//others:  []SnakeBody{},
+			snake:   SnakeBody{},
 			speed:   common.SceneSpeed,
 			preTime: 0,
 		},
 		activetime: time.Now(), //开始时间
-		//angle:      0, //在parsemsg中被赋值
 	}
 
 	// 需要实现 ParseMsg() OnClose()
@@ -70,17 +66,15 @@ func (this *PlayerTask) Start() {
 	//this.scene.InitSnake() //初始化蛇
 }
 
-//todo ParseMsg
 func (this *PlayerTask) ParseMsg(data []byte, flag byte) bool {
 	glog.Info("[WS] Parse Msg", data)
 	this.activetime = time.Now()
 
-	//todo msg需要约定
-	msgtype := common.MsgType(uint16(data[2]))
+	msgtype := common.MsgType(uint16(data[2]) | uint16(data[3])<<8)
 
 	switch msgtype {
 	case common.MsgType_Move:
-		var angle float64
+		var angle int32
 		err := binary.Read(bytes.NewReader(data[4:]), binary.LittleEndian, &angle)
 		if nil != err {
 			glog.Error("[WS] Endian Trans Fail", data)
@@ -88,18 +82,20 @@ func (this *PlayerTask) ParseMsg(data []byte, flag byte) bool {
 		}
 		glog.Info("[WS] Parse Msg Move ", angle)
 		if nil == this.room {
+			fmt.Println("此玩家房间未初始化")
 			return false
 		}
 		if this.room.Isstop {
+			fmt.Println("此玩家房间已经停止")
 			return false
 		}
-		this.angle = angle
-
 		if nil == this.scene {
+			fmt.Println("此玩家场景未初始化")
 			return false
 		}
 
-		this.scene.UpdateSnakePOINT(angle)
+		this.direct = float64(angle)
+		this.scene.UpdateSnakePOINT(this.direct)
 		this.scene.UpdateSpeed(common.SceneSpeed)
 
 	case common.MsgType_SpeedUp:
@@ -124,6 +120,10 @@ func (this *PlayerTask) ParseMsg(data []byte, flag byte) bool {
 	return true
 }
 
+func (this *PlayerTask) Stop() bool {
+	return this.wstask.Stop()
+}
+
 func (this *PlayerTask) OnClose() {
 	this.wstask.Close()
 	PlayerTaskMgr_GetMe().Del(this)
@@ -137,7 +137,7 @@ func (this *PlayerTask) Update() {
 		return
 	}
 
-	this.scene.UpdateSnakePOINT(this.angle)
+	this.scene.UpdateSnakePOINT(this.direct)
 }
 
 //func (this *PlayerTask) UpdateOthers() {
@@ -228,7 +228,7 @@ func (thisPTMgr *PlayerTaskMgr) iTimeAction() {
 				thisPTMgr.mutex.RUnlock()
 
 				for _, t := range ptasks {
-					if !t.wstask.Stop() {
+					if !t.Stop() {
 						thisPTMgr.Del(t) //删除超时链接
 					}
 					glog.Info("[Player] 连接超时, 玩家id=", t.id) //连接超时

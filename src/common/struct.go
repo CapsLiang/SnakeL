@@ -41,13 +41,14 @@ type RetSceneMsg struct {
 }
 
 // MsgType 消息信息
-type MsgType uint8
+type MsgType uint16
 
 const (
-	MsgType_Move    MsgType = 0
-	MsgType_SpeedUp MsgType = 1
-	MsgType_Finsh   MsgType = 2
-	MsgType_Heart   MsgType = 3
+	MsgType_Start   MsgType = 0
+	MsgType_Move    MsgType = 1
+	MsgType_SpeedUp MsgType = 2
+	MsgType_Finsh   MsgType = 3
+	MsgType_Heart   MsgType = 4
 )
 
 //连接信息
