@@ -27,10 +27,13 @@ type RetTimeMsg struct {
 // RetSnakeBody omitempty作用是在json数据结构转换时，当该字段的值为该字段类型的零值时，忽略该字段
 type RetSnakeBody struct {
 	//color
-	Id   uint32  `json:"id,omitempty"`
-	Name string  `json:"name,omitempty"`
-	Head POINT   `json:"head"`
-	Body []POINT `json:"body,omitempty"`
+	Id     uint32  `json:"id"`
+	Name   string  `json:"name"`
+	Direct float64 `json:"direct"`
+	Head   POINT   `json:"head"`
+	Body   []POINT `json:"body"`
+	Score  int32   `json:"score"`
+	Radius float64 `json:"radius"`
 }
 
 // RetSceneMsg 服务器返回游戏场景

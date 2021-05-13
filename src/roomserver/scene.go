@@ -402,10 +402,13 @@ func (this *Scene) SceneMsg() []byte {
 
 	//本条蛇
 	retsceneMsg.PlayerSnake = append(retsceneMsg.PlayerSnake, common.RetSnakeBody{
-		Id:   this.snake.id,
-		Name: this.snake.name,
-		Head: this.snake.head,
-		Body: this.snake.body,
+		Id:     this.snake.id,
+		Name:   this.snake.name,
+		Direct: this.snake.direct,
+		Head:   this.snake.head,
+		Body:   this.snake.body,
+		Score:  this.snake.score,
+		Radius: this.snake.radius,
 	})
 
 	//其他蛇
@@ -413,10 +416,13 @@ func (this *Scene) SceneMsg() []byte {
 		if other != this.snake.thisplayer {
 			fmt.Println("玩家: ", this.snake.id, "[序列化] 不属于本条蛇的信息: ", other)
 			retsceneMsg.OthersSnake = append(retsceneMsg.OthersSnake, common.RetSnakeBody{
-				Id:   other.scene.snake.id,
-				Name: other.scene.snake.name,
-				Head: other.scene.snake.head,
-				Body: other.scene.snake.body,
+				Id:     other.scene.snake.id,
+				Name:   other.scene.snake.name,
+				Direct: other.scene.snake.direct,
+				Head:   other.scene.snake.head,
+				Body:   other.scene.snake.body,
+				Score:  other.scene.snake.score,
+				Radius: other.scene.snake.radius,
 			})
 		}
 
@@ -438,6 +444,6 @@ func (this *Scene) SceneMsg() []byte {
 		glog.Error("[Scene] SceneMsg 序列化出错 ", err)
 		return nil
 	}
-
+	fmt.Println(bytes)
 	return bytes
 }
