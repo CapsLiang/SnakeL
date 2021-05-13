@@ -79,7 +79,7 @@ const (
 	FoodNum    uint32 = 20
 	FoodEnergy int32  = 5
 	// EatFoodRadius
-	EatFoodRadius float64 = 5
+	EatFoodRadius float64 = 2
 )
 
 //蛇的信息
@@ -93,13 +93,13 @@ const (
 //以下为约定结构
 type POINT struct {
 	//Id uint32
-	X float64
-	Y float64
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
 }
 
 type Food struct {
-	Energy int32
-	Stat   POINT
+	Energy int32 `json:"energy"`
+	Stat   POINT `json:"stat"`
 }
 
 type Circle struct {

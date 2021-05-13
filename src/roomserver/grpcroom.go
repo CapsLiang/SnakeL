@@ -2,8 +2,10 @@ package main
 
 import (
 	"base/env"
+	"common"
 	"context"
 	"encoding/json"
+	"net"
 	"strconv"
 	"time"
 
@@ -70,7 +72,7 @@ func (this *RoomGrpcClient) SendRegist() bool {
 	}
 
 	bytes, err := json.Marshal(proto.ConnectRoomInfo{
-		Ip:   0,
+		Ip:   common.IPToUInt32(net.ParseIP("1.117.112.113")),
 		Port: uint32(port),
 	})
 	if nil != err {

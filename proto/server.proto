@@ -33,7 +33,7 @@ message RoomRequest {
   bytes data = 2;
 }
 
-service StreamRoomService {
+service StreamRoomService {//
   rpc Route(stream RoomRequest) returns (stream RoomResponse) {};
 }
 
