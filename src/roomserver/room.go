@@ -30,6 +30,9 @@ type Room struct {
 	endchan     chan bool
 }
 
+//公用食物
+var mFoods *FoodList
+
 func NewRoom(rtype, rid uint32) *Room {
 	room := &Room{
 		roomid:   rid,
@@ -46,7 +49,7 @@ func NewRoom(rtype, rid uint32) *Room {
 
 func (this *Room) Start() {
 	this.isstart = true
-
+	mFoods = this.GetmFoods()
 	for _, snake := range this.players {
 		snake.scene.InitSnake()
 	}
@@ -63,11 +66,13 @@ func (this *Room) GameLoop() {
 		// SceneMsg, 用于同步场景
 		select {
 		case <-timeTicker.C:
-			if this.timeloop%2 == 0 { //0.02s 20ms
-				fmt.Println("timeloop ", this.timeloop)
+			if this.timeloop%4 == 0 { //40ms 25fps
 				this.update()
-				this.sendRoomMsg()
+				fmt.Println("                                      ")
+			}
 
+			if this.timeloop%4 == 0 { //40ms 25fps
+				this.sendRoomMsg()
 				fmt.Println("                                      ")
 			}
 
@@ -75,7 +80,11 @@ func (this *Room) GameLoop() {
 				this.sendTime(this.totgametime - this.timeloop/100)
 			}
 
-			if this.timeloop%200 == 0 { //2s
+			if this.timeloop%500 == 0 { //5s
+				this.AddFoods()
+			}
+
+			if this.timeloop%600 == 0 { //6s
 				if this.curnum == 0 {
 					stop = true
 				}
@@ -107,6 +116,7 @@ func (this *Room) AddPlayer(player *PlayerTask) error {
 	}
 
 	this.curnum++
+	player.scene = &Scene{}
 	this.players[player.id] = player
 	this.players[player.id].room = this
 
@@ -159,8 +169,6 @@ func (this *Room) sendTime(t uint64) {
 }
 
 func (this *Room) update() {
-	this.AddFoods()
-	glog.Info("[room]更新食物")
 
 	for _, p := range this.players {
 		p.Update()

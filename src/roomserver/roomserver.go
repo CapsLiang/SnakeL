@@ -6,6 +6,7 @@ import (
 	"flag"
 	"github.com/golang/glog"
 	"github.com/gorilla/websocket"
+	"math/rand"
 	"time"
 )
 
@@ -79,7 +80,7 @@ var (
 
 func main() {
 	flag.Parse()
-
+	rand.Seed(time.Now().Unix())
 	env.Load(*config)
 
 	if "" != *logfile {

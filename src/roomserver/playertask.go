@@ -36,7 +36,7 @@ func NewPlayerTask(conn *websocket.Conn) *PlayerTask {
 		scene: &Scene{
 			snake:   SnakeBody{},
 			speed:   common.SceneSpeed,
-			preTime: 0,
+			preTime: time.Now().UnixNano() / 1e6, //毫秒
 		},
 		activetime: time.Now(), //开始时间
 	}

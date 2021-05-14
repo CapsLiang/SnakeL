@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/golang/glog"
 	"math"
+	"sync"
 	"time"
 )
 
@@ -32,55 +33,61 @@ func (this *SnakeBody) SnakeDie() {
 }
 
 type FoodList struct {
-	//foodMutex sync.Mutex
-	foodlist []common.Food //食物列表
-	eatfood  map[int]bool  //判断是否被吃 每次更新
+	foodMutex sync.Mutex
+	foodlist  []common.Food //食物列表
+	eatfood   map[int]bool  //判断是否被吃 每次更新
 }
-
-//公用食物
-var mFoods *FoodList
 
 type Scene struct {
 	room *Room //所属房间
 
 	snake SnakeBody //本条蛇
+
+	selfMutex sync.Mutex
 	//others []SnakeBody //其他人的信息
 
 	speed   float64 //蛇的移动速度
 	preTime int64   //上一帧时间
 }
 
-func (this *Room) AddFoods() {
-	//不存在时 创建食物数组
+func (this *Room) GetmFoods() *FoodList {
 	if nil == mFoods {
 		mFoods = &FoodList{
-			//foodMutex: sync.Mutex{},
-			foodlist: make([]common.Food, 0, common.FoodNum),
-			eatfood:  make(map[int]bool),
+			foodMutex: sync.Mutex{},
+			foodlist:  make([]common.Food, 0, common.FoodNum),
+			eatfood:   make(map[int]bool),
 		}
+
 		//初始化食物数组
 		for i := 0; i < int(common.FoodNum); i++ {
 			//并未被吃
 			mFoods.eatfood[i] = false
-			x, y := common.RandPOINTFloat64()
+			x, y := common.RandPOINTFloat64(100, common.SceneWidth-100, common.SceneHeight-100)
 			mFoods.foodlist = append(mFoods.foodlist, common.Food{
 				Energy: common.FoodEnergy,
-				Stat:   common.POINT{X: x - 10, Y: y - 10},
+				Stat:   common.POINT{X: x, Y: y},
 			})
 		}
-		fmt.Println("生成食物数组")
+
+		fmt.Println("生成食物数组", mFoods.foodlist)
 		glog.Info("生成食物数组")
 	}
+	return mFoods
+}
+
+func (this *Room) AddFoods() {
+	mFoods.foodMutex.Lock()
+
 	//食物未生成够 添加食物
 	if len(mFoods.foodlist) < cap(mFoods.foodlist) {
 		//当容量小于 最大容量
 		for i := 0; i < int(common.FoodNum); i++ {
 			//食物已经被吃了 生成新food
 			if mFoods.eatfood[i] {
-				x, y := common.RandPOINTFloat64()
+				x, y := common.RandPOINTFloat64(100, common.SceneWidth-100, common.SceneHeight-100)
 				mFoods.foodlist[i] = common.Food{
 					Energy: common.FoodEnergy,
-					Stat:   common.POINT{X: x - 10, Y: y - 10},
+					Stat:   common.POINT{X: x, Y: y},
 				}
 				mFoods.eatfood[i] = false
 			}
@@ -88,6 +95,7 @@ func (this *Room) AddFoods() {
 		fmt.Println("填满食物数组")
 		glog.Info("填满食物数组")
 	}
+	mFoods.foodMutex.Unlock()
 }
 
 func (this *Room) GetFoodList() *FoodList {
@@ -237,6 +245,7 @@ func (this *Scene) InitSnake() {
 	this.snake.radius = common.SnakeRadius
 	this.snake.score = 0
 	this.snake.isdead = false //没死
+
 	//this.snake.invincible = true //无敌
 	fmt.Println("玩家ID: ", this.snake.id, " [新初始化蛇头位置:]", "{", temhead.X, ",", temhead.Y, "}", "玩家姓名:", this.snake.name)
 	glog.Info("玩家ID: ", this.snake.id, " [新初始化蛇头位置:]", "{", temhead.X, ",", temhead.Y, "}", "玩家姓名:", this.snake.name)
@@ -244,7 +253,7 @@ func (this *Scene) InitSnake() {
 	//身体 默认向右移动 todo移动坐标有误
 	for i := 1; i <= 3; i++ {
 		this.snake.body = append(this.snake.body, common.POINT{
-			X: temhead.X - float64(i),
+			X: temhead.X - float64(i)*common.SnakeRadius,
 			Y: temhead.Y,
 		})
 	}
@@ -259,15 +268,16 @@ func (this *Scene) UpdateSnakePOINT(angle float64) {
 	//this.SnakeMove(angle, space)
 
 	frame := float64((time.Now().UnixNano() / 1e6) - (this.preTime)) //相差多少毫秒
-	if frame > common.FrameTime {
-		frame = common.FrameTime
-	}
 
-	//space := common.SceneSpeed * (frame / 1000) //速度像素/s 相差(毫秒 / 1000)即每秒
+	if frame >= common.FrameTime {
+		frame = common.FrameTime
+		//space := common.SceneSpeed * (frame / 1000) //速度像素/s 相差(毫秒 / 1000)即每秒
+	}
 
 	this.preTime = time.Now().UnixNano() / 1e6 //毫秒
 
 	this.SnakeHeadMove(angle, frame)
+
 }
 
 ////todo 传的是引用可以吗?
@@ -302,8 +312,8 @@ func (this *Scene) UpdateSpeed(Speed float64) {
 
 func (this *Scene) SnakeHeadMove(angle float64, space float64) {
 	//蛇身越长 蛇的半径越大
-	temRadius := math.Floor(float64(12 + len(this.snake.body)/100))
-	this.snake.radius = temRadius
+	//temRadius := math.Floor(float64(12 + len(this.snake.body)/100))
+	//this.snake.radius = temRadius
 	//蛇身越大 速度也需要改变
 	//this.speed = 105 + 400 / this.snake.radius
 
@@ -373,7 +383,7 @@ func (this *Scene) SnakeHeadMove(angle float64, space float64) {
 
 func (this *Scene) SnakeBodyMove(newhead common.POINT) {
 	//todo 计算出单位时间内移动的距离算出
-	for i := len(this.snake.body) - 1; i > 0; i-- {
+	for i := len(this.snake.body) - 1; i > 1; i-- {
 		this.snake.body[i] = this.snake.body[i-1]
 	}
 	this.snake.body[0] = this.snake.head
@@ -401,6 +411,7 @@ func (this *Scene) SceneMsg() []byte {
 	retsceneMsg.FoodList = []common.Food{}
 
 	//本条蛇
+	fmt.Println("序列化本条蛇")
 	retsceneMsg.PlayerSnake = append(retsceneMsg.PlayerSnake, common.RetSnakeBody{
 		Id:     this.snake.id,
 		Name:   this.snake.name,
@@ -410,10 +421,17 @@ func (this *Scene) SceneMsg() []byte {
 		Score:  this.snake.score,
 		Radius: this.snake.radius,
 	})
+	fmt.Println(retsceneMsg)
+
+	//var temsceneOthersnake = []SnakeBody{}
+	//for _, othersnake := range this.room.players {
+	//	temsceneOthersnake = append(temsceneOthersnake,othersnake.scene.snake)
+	//}
 
 	//其他蛇
 	for _, other := range this.room.players {
-		if other != this.snake.thisplayer {
+		fmt.Println("遍历序列化其他蛇")
+		if other != this.snake.thisplayer && other.scene != nil && !other.scene.snake.isdead {
 			fmt.Println("玩家: ", this.snake.id, "[序列化] 不属于本条蛇的信息: ", other)
 			retsceneMsg.OthersSnake = append(retsceneMsg.OthersSnake, common.RetSnakeBody{
 				Id:     other.scene.snake.id,
@@ -424,21 +442,26 @@ func (this *Scene) SceneMsg() []byte {
 				Score:  other.scene.snake.score,
 				Radius: other.scene.snake.radius,
 			})
+			fmt.Println(retsceneMsg)
 		}
 
 	}
 
 	//食物
-	for i := 0; i < int(common.FoodNum); i++ {
-		//发送所有没被吃的食物
-		if !mFoods.eatfood[i] {
-			retsceneMsg.FoodList = append(retsceneMsg.FoodList, common.Food{
-				Energy: mFoods.foodlist[i].Energy,
-				Stat:   mFoods.foodlist[i].Stat,
-			})
+	fmt.Println("序列化食物")
+	for i := 0; i < len(mFoods.foodlist); i++ {
+		if mFoods.eatfood[i] {
+			continue
 		}
-	}
 
+		retsceneMsg.FoodList = append(retsceneMsg.FoodList, common.Food{
+			Energy: mFoods.foodlist[i].Energy,
+			Stat:   mFoods.foodlist[i].Stat,
+		})
+
+	}
+	fmt.Println(mFoods)
+	fmt.Println(retsceneMsg)
 	bytes, err := json.Marshal(retsceneMsg)
 	if nil != err {
 		glog.Error("[Scene] SceneMsg 序列化出错 ", err)
